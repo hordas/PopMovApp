@@ -2,4 +2,9 @@
     <string name="app_name">PopMovApp</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
+    <string name="action_popular_by_asc">Order ascending</string>
+    <string name="action_popular_by_desc">Order descending</string>
+    <string name="title_activity_details">Details</string>
+
+    <string name="poster_content_description">Movie poster</string>
 </resources>
