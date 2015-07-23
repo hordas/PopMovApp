@@ -3,7 +3,6 @@ package com.dyomin.udatraining.popmovapp;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.util.ArrayList;
 import java.util.List;
 

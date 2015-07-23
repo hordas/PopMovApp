@@ -26,6 +26,14 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.dyomin.udatraining.popmovapp.MainActivity" />
         </activity>
+        <activity
+            android:name=".SettingsActivity"
+            android:label="@string/title_activity_settings"
+            android:parentActivityName=".MainActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.dyomin.udatraining.popmovapp.MainActivity" />
+        </activity>
     </application>
 
 </manifest>

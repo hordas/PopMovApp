@@ -35,14 +35,14 @@ public class MainActivityFragment extends Fragment {
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.ma_fragment, menu);
+        inflater.inflate(R.menu.menu_s_fragment, menu);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         PostersUploader tu;
         switch (item.getItemId()) {
-            case R.id.action_sort_asc:
+            case R.id.action_settings:
                 tu = new PostersUploader();
                 tu.execute(Connection.getPopularMoviesUrl(true));
                 return true;
