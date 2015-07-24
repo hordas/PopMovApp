@@ -15,17 +15,19 @@
     <string name="pref_default_display_name">John Smith</string>
 
     <string name="pref_title_popular_movies_sort_order">Movies order</string>
-    <string name="pref_key_popular_movies_sort_order">movies_order</string>
-    <string-array name="pref_example_list_titles">
-        <item>Always</item>
-        <item>When possible</item>
-        <item>Never</item>
+    <string name="pref_key_popular_movies_sort_order" translatable="false">movies_order</string>
+    <string-array name="pref_movies_sort_order_list_titles">
+        <item>Descending</item>
+        <item>Ascending</item>
     </string-array>
-    <string-array name="pref_example_list_values">
-        <item>1</item>
-        <item>0</item>
-        <item>-1</item>
-    </string-array>
+    <string name="movies_sort_order_asc_value" translatable="false">asc</string>
+    <string name="movies_sort_order_desc_value" translatable="false">desc</string>
+    <array name="pref_movies_sort_order_list_values">
+        <item>@string/movies_sort_order_desc_value</item>
+        <item>@string/movies_sort_order_asc_value</item>
+    </array>
+    <string name="button_ok">OK</string>
+    <string name="button_cancel">Cancel</string>
 
     <!-- Example settings for Data & Sync -->
     <string name="pref_header_data_sync">Data &amp; sync</string>

@@ -21,7 +21,11 @@ public class MainActivityFragment extends Fragment {
 
     private PosterAdapter posterAdapter;
     private GridView gv;
+    //todo implement later
+    @SuppressWarnings({"FieldCanBeLocal", "unused"})
     private int totalPages;
+    //todo implement later
+    @SuppressWarnings({"FieldCanBeLocal", "unused"})
     private int currentPage;
 
     public MainActivityFragment() {
@@ -35,21 +39,15 @@ public class MainActivityFragment extends Fragment {
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.menu_s_fragment, menu);
+        inflater.inflate(R.menu.ma_fragment, menu);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        PostersUploader tu;
         switch (item.getItemId()) {
             case R.id.action_settings:
-                tu = new PostersUploader();
-                tu.execute(Connection.getPopularMoviesUrl(true));
-                return true;
-
-            case R.id.action_sort_desc:
-                tu = new PostersUploader();
-                tu.execute(Connection.getPopularMoviesUrl(false));
+                Intent intent = new Intent(getActivity(), SettingsActivity.class);
+                startActivity(intent);
                 return true;
 
             default:
@@ -95,8 +93,6 @@ public class MainActivityFragment extends Fragment {
             }
         }
     }
-
-
 
     private void setBatchResults(PosterBatch batch) {
         if (posterAdapter != null) {

@@ -25,8 +25,8 @@
             android:contentDescription="@string/poster_content_description"
             android:layout_below="@+id/textview_original_title"
             android:layout_margin="10dp"
-            android:layout_width="120dp"
-            android:layout_height="160dp"
+            android:layout_width="140dp"
+            android:layout_height="200dp"
             android:adjustViewBounds="true"/>
 
         <TextView
