@@ -3,6 +3,7 @@ package com.dyomin.udatraining.popmovapp;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -38,6 +39,12 @@ public class MainActivityFragment extends Fragment {
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        updateResults();
+    }
+
+    @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.ma_fragment, menu);
     }
@@ -60,8 +67,7 @@ public class MainActivityFragment extends Fragment {
                              Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_main, container, false);
         gv = (GridView) v.findViewById(R.id.gridview);
-        PostersUploader tu = new PostersUploader();
-        tu.execute(Connection.getPopularMoviesUrl(false));
+        updateResults();
         gv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -72,6 +78,17 @@ public class MainActivityFragment extends Fragment {
             }
         });
         return v;
+    }
+
+    private void updateResults() {
+        PostersUploader tu = new PostersUploader();
+        tu.execute(Connection.getPopularMoviesUrl(getSortOrder()));
+    }
+
+    private String getSortOrder() {
+        return PreferenceManager.getDefaultSharedPreferences(getActivity())
+                .getString(getString(R.string.pref_key_popular_movies_sort_order),
+                        getString(R.string.movies_sort_order_default));
     }
 
     public class PostersUploader extends AsyncTask<String, Void, PosterBatch> {

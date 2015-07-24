@@ -1,12 +1,10 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
     <ListPreference
-        android:key="@string/pref_key_popular_movies_sort_order"
         android:title="@string/pref_title_popular_movies_sort_order"
-        android:defaultValue="-1"
-        android:entries="@array/pref_movies_sort_order_list_titles"
+        android:key="@string/pref_key_popular_movies_sort_order"
+        android:defaultValue="@string/movies_sort_order_default"
         android:entryValues="@array/pref_movies_sort_order_list_values"
-        android:negativeButtonText="@null"
-        android:positiveButtonText="@null" />
+        android:entries="@array/pref_movies_sort_order_list_titles"/>
 
 </PreferenceScreen>

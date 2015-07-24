@@ -11,6 +11,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 /**
+ * Class generates urls and performs connections to the service.
+ * --
  * Created by Admin on 19.07.2015.
  */
 public class Connection {
@@ -23,8 +25,6 @@ public class Connection {
     private static final String MOVIE_FOR_ID_PART = "movie/";
     private static final String SORT_BY_KEY = "sort_by";
     private static final String SORT_BY_POPULARITY = "popularity.";
-    private static final String DESC = "desc";
-    private static final String ASC = "asc";
 
     private static final String LOG_TAG = Connection.class.getSimpleName();
 
@@ -42,7 +42,7 @@ public class Connection {
             urlConnection.connect();
 
             InputStream inputStream = urlConnection.getInputStream();
-            StringBuffer buffer = new StringBuffer();
+            StringBuilder buffer = new StringBuilder();
             if (inputStream == null) {
                 return null;
             }
@@ -70,11 +70,11 @@ public class Connection {
         return resultJsonString;
     }
 
-    public static String getPopularMoviesUrl(boolean isAscSortOrder) {
+    public static String getPopularMoviesUrl(String order) {
         Uri uri = Uri.parse(BASE_API_URL).buildUpon()
                 .appendEncodedPath(MOVIE_PART)
                 .appendQueryParameter(SORT_BY_KEY, SORT_BY_POPULARITY
-                        + (isAscSortOrder ? ASC : DESC))
+                        + order)
                 .appendQueryParameter(API_KEY_KEY, API_KEY_VALUE).build();
         return uri.toString();
     }
