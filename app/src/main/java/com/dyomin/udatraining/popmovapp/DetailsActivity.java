@@ -6,14 +6,17 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
+/*
+ * Activity for details info.
+ */
 
+@SuppressWarnings("deprecation")
 public class DetailsActivity extends ActionBarActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_details);
-
 
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         ft.add(R.id.framelayout_movie_details, new DetailsActivityFragment()).commit();

@@ -11,7 +11,9 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-
+import com.dyomin.udatraining.popmovapp.data.MovieDetails;
+import com.dyomin.udatraining.popmovapp.util.Connection;
+import com.dyomin.udatraining.popmovapp.util.JsonParser;
 import com.squareup.picasso.Picasso;
 
 

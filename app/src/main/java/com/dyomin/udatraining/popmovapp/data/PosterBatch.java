@@ -1,8 +1,11 @@
-package com.dyomin.udatraining.popmovapp;
+package com.dyomin.udatraining.popmovapp.data;
 
 import java.util.List;
 
 /**
+ * Contains batch of posters for current page, a number of current page
+ * and total amount of pages.
+ * --
  * Created by Admin on 20.07.2015.
  */
 public class PosterBatch {

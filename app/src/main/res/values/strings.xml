@@ -6,4 +6,6 @@
     <string name="title_activity_details">Details</string>
 
     <string name="poster_content_description">Movie poster</string>
+    <string name="left_arrow">&#60;</string>
+    <string name="right_arrow">&#62;</string>
 </resources>

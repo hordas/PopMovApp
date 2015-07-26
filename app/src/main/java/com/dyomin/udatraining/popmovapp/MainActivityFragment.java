@@ -13,20 +13,26 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
+import android.widget.TextView;
 
+import com.dyomin.udatraining.popmovapp.data.PosterAdapter;
+import com.dyomin.udatraining.popmovapp.data.PosterBatch;
+import com.dyomin.udatraining.popmovapp.util.Connection;
+import com.dyomin.udatraining.popmovapp.util.JsonParser;
 
 /**
  * A placeholder fragment containing a simple view.
  */
+
 public class MainActivityFragment extends Fragment {
 
     private PosterAdapter posterAdapter;
     private GridView gv;
-    //todo implement later
-    @SuppressWarnings({"FieldCanBeLocal", "unused"})
+    private TextView buttonLeft;
+    private TextView buttonRight;
+    private TextView textViewCurrentPage;
+
     private int totalPages;
-    //todo implement later
-    @SuppressWarnings({"FieldCanBeLocal", "unused"})
     private int currentPage;
 
     public MainActivityFragment() {
@@ -67,6 +73,9 @@ public class MainActivityFragment extends Fragment {
                              Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_main, container, false);
         gv = (GridView) v.findViewById(R.id.gridview);
+        buttonLeft = (TextView) v.findViewById(R.id.textview_left_arrow);
+        buttonRight = (TextView) v.findViewById(R.id.textview_right_arrow);
+        textViewCurrentPage = (TextView) v.findViewById(R.id.textview_current_page);
         updateResults();
         gv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -77,12 +86,37 @@ public class MainActivityFragment extends Fragment {
                 startActivity(intent);
             }
         });
+        buttonLeft.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (currentPage != 1) {
+                    String url = Connection.getCertainPageUrlOfPopularMovies(getSortOrder(),
+                            (currentPage - 1));
+                    updateResults(url);
+                }
+            }
+        });
+        buttonRight.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (currentPage != totalPages) {
+                    String url = Connection.getCertainPageUrlOfPopularMovies(getSortOrder(),
+                            (currentPage + 1));
+                    updateResults(url);
+                }
+            }
+        });
+
         return v;
     }
 
-    private void updateResults() {
+    private void updateResults(String url) {
         PostersUploader tu = new PostersUploader();
-        tu.execute(Connection.getPopularMoviesUrl(getSortOrder()));
+        tu.execute(url);
+    }
+
+    private void updateResults() {
+        updateResults(Connection.getPopularMoviesUrl(getSortOrder()));
     }
 
     private String getSortOrder() {
@@ -125,6 +159,24 @@ public class MainActivityFragment extends Fragment {
     private void setPages(PosterBatch batch) {
         currentPage = batch.getCurrentPage();
         totalPages = batch.getTotalPages();
+        textViewCurrentPage.setText(Integer.toString(currentPage));
+        updateLeftButton();
+        updateRightButton();
     }
 
+    private void updateLeftButton() {
+        if (currentPage == 1) {
+            buttonLeft.setVisibility(View.INVISIBLE);
+        } else {
+            buttonLeft.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void updateRightButton() {
+        if (currentPage == totalPages) {
+            buttonRight.setVisibility(View.INVISIBLE);
+        } else {
+            buttonRight.setVisibility(View.VISIBLE);
+        }
+    }
 }

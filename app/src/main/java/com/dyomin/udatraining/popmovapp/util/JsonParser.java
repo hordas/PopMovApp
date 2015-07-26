@@ -1,5 +1,8 @@
-package com.dyomin.udatraining.popmovapp;
+package com.dyomin.udatraining.popmovapp.util;
 
+import com.dyomin.udatraining.popmovapp.data.MovieDetails;
+import com.dyomin.udatraining.popmovapp.data.Poster;
+import com.dyomin.udatraining.popmovapp.data.PosterBatch;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -7,6 +10,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * Class parses JSON responses for movie details and for main activity.
+ * --
  * Created by Admin on 19.07.2015.
  */
 public class JsonParser {

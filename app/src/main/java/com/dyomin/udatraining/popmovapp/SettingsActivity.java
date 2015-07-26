@@ -8,9 +8,6 @@ import android.preference.PreferenceManager;
 import android.view.MenuItem;
 import android.support.v4.app.NavUtils;
 
-
-import java.util.List;
-
 /**
  * A {@link PreferenceActivity} that presents a set of application settings. On
  * handset devices, settings are presented as a single list. On tablets,
@@ -27,7 +24,9 @@ public class SettingsActivity extends PreferenceActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //noinspection deprecation
         addPreferencesFromResource(R.xml.pref_general);
+        //noinspection deprecation
         bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_key_popular_movies_sort_order)));
     }
 

@@ -1,14 +1,17 @@
-package com.dyomin.udatraining.popmovapp;
+package com.dyomin.udatraining.popmovapp.data;
 
 import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
+import com.dyomin.udatraining.popmovapp.util.Connection;
 import com.squareup.picasso.Picasso;
 import java.util.List;
 
 /**
+ * Adds posters to MainActivityFragment.
+ * --
  * Created by Admin on 19.07.2015.
  */
 public class PosterAdapter extends BaseAdapter {

@@ -1,6 +1,8 @@
-package com.dyomin.udatraining.popmovapp;
+package com.dyomin.udatraining.popmovapp.data;
 
 /**
+ * Class contains detail info about movie.
+ * --
  * Created by Admin on 20.07.2015.
  */
 public class MovieDetails {

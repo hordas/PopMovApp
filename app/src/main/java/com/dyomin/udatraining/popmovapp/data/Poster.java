@@ -1,6 +1,8 @@
-package com.dyomin.udatraining.popmovapp;
+package com.dyomin.udatraining.popmovapp.data;
 
 /**
+ * Class contains info about posters url and moview id.
+ * --
  * Created by Admin on 19.07.2015.
  */
 public class Poster {

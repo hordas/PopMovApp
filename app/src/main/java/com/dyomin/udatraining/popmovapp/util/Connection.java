@@ -1,4 +1,4 @@
-package com.dyomin.udatraining.popmovapp;
+package com.dyomin.udatraining.popmovapp.util;
 
 import android.net.Uri;
 import android.util.Log;
@@ -25,6 +25,7 @@ public class Connection {
     private static final String MOVIE_FOR_ID_PART = "movie/";
     private static final String SORT_BY_KEY = "sort_by";
     private static final String SORT_BY_POPULARITY = "popularity.";
+    private static final String PAGE_KEY = "page";
 
     private static final String LOG_TAG = Connection.class.getSimpleName();
 
@@ -49,7 +50,7 @@ public class Connection {
             String line;
             reader = new BufferedReader(new InputStreamReader(inputStream));
             while ((line = reader.readLine()) != null) {
-                buffer.append(line + "\n");
+                buffer.append(line).append("\n");
             }
             resultJsonString = buffer.toString();
         } catch (IOException e) {
@@ -75,6 +76,15 @@ public class Connection {
                 .appendEncodedPath(MOVIE_PART)
                 .appendQueryParameter(SORT_BY_KEY, SORT_BY_POPULARITY
                         + order)
+                .appendQueryParameter(API_KEY_KEY, API_KEY_VALUE).build();
+        return uri.toString();
+    }
+
+    public static String getCertainPageUrlOfPopularMovies(String order, int page) {
+        Uri uri = Uri.parse(BASE_API_URL).buildUpon()
+                .appendEncodedPath(MOVIE_PART)
+                .appendQueryParameter(SORT_BY_KEY, SORT_BY_POPULARITY + order)
+                .appendQueryParameter(PAGE_KEY, Integer.toString(page))
                 .appendQueryParameter(API_KEY_KEY, API_KEY_VALUE).build();
         return uri.toString();
     }
