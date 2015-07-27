@@ -31,6 +31,7 @@ public class MainActivityFragment extends Fragment {
     private TextView buttonLeft;
     private TextView buttonRight;
     private TextView textViewCurrentPage;
+    private PostersUploader pu;
 
     private int totalPages;
     private int currentPage;
@@ -59,12 +60,19 @@ public class MainActivityFragment extends Fragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_settings:
+                stopTaskIfRunning();
                 Intent intent = new Intent(getActivity(), SettingsActivity.class);
                 startActivity(intent);
                 return true;
 
             default:
                 return super.onOptionsItemSelected(item);
+        }
+    }
+
+    private void stopTaskIfRunning() {
+        if (pu.getStatus().equals(AsyncTask.Status.RUNNING)) {
+            pu.cancel(true);
         }
     }
 
@@ -80,6 +88,7 @@ public class MainActivityFragment extends Fragment {
         gv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                stopTaskIfRunning();
                 String filmId = posterAdapter.getIdByPosition(position);
                 Intent intent = new Intent(getActivity(), DetailsActivity.class);
                 intent.putExtra(Intent.EXTRA_TEXT, filmId);
@@ -90,6 +99,7 @@ public class MainActivityFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 if (currentPage != 1) {
+                    stopTaskIfRunning();
                     String url = Connection.getCertainPageUrlOfPopularMovies(getSortOrder(),
                             (currentPage - 1));
                     updateResults(url);
@@ -100,6 +110,7 @@ public class MainActivityFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 if (currentPage != totalPages) {
+                    stopTaskIfRunning();
                     String url = Connection.getCertainPageUrlOfPopularMovies(getSortOrder(),
                             (currentPage + 1));
                     updateResults(url);
@@ -111,8 +122,8 @@ public class MainActivityFragment extends Fragment {
     }
 
     private void updateResults(String url) {
-        PostersUploader tu = new PostersUploader();
-        tu.execute(url);
+        pu = new PostersUploader();
+        pu.execute(url);
     }
 
     private void updateResults() {

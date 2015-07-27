@@ -30,8 +30,8 @@
             android:adjustViewBounds="true"/>
 
         <TextView
-            android:id="@+id/textview_movie_release_date"
-            android:textSize="16sp"
+            android:id="@+id/textview_release_date_label"
+            android:text="@string/release_date_label"
             android:layout_below="@+id/textview_original_title"
             android:layout_toEndOf="@+id/imageview_movie_poster"
             android:layout_toRightOf="@+id/imageview_movie_poster"
@@ -40,8 +40,28 @@
             android:layout_height="wrap_content" />
 
         <TextView
-            android:id="@+id/textview_movie_rating"
+            android:id="@+id/textview_movie_release_date"
+            android:textSize="16sp"
+            android:layout_below="@+id/textview_release_date_label"
+            android:layout_toEndOf="@+id/imageview_movie_poster"
+            android:layout_toRightOf="@+id/imageview_movie_poster"
+            android:layout_marginTop="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/textview_vote_average_label"
+            android:text="@string/vote_average_label"
             android:layout_below="@+id/textview_movie_release_date"
+            android:layout_toEndOf="@+id/imageview_movie_poster"
+            android:layout_toRightOf="@+id/imageview_movie_poster"
+            android:layout_marginTop="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/textview_movie_rating"
+            android:layout_below="@+id/textview_vote_average_label"
             android:layout_toEndOf="@+id/imageview_movie_poster"
             android:layout_toRightOf="@+id/imageview_movie_poster"
             android:layout_marginTop="10dp"

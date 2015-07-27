@@ -5,6 +5,8 @@
     <string name="action_popular_by_desc">Order descending</string>
     <string name="title_activity_details">Details</string>
 
+    <string name="vote_average_label">Vote average:</string>
+    <string name="release_date_label">Release date:</string>
     <string name="poster_content_description">Movie poster</string>
     <string name="left_arrow">&#60;</string>
     <string name="right_arrow">&#62;</string>
