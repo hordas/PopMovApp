@@ -100,7 +100,7 @@ public class MainActivityFragment extends Fragment {
             public void onClick(View v) {
                 if (currentPage != 1) {
                     stopTaskIfRunning();
-                    String url = Connection.getCertainPageUrlOfPopularMovies(getSortOrder(),
+                    String url = Connection.getCertainPageUrl(getSortOrder(),
                             (currentPage - 1));
                     updateResults(url);
                 }
@@ -111,7 +111,7 @@ public class MainActivityFragment extends Fragment {
             public void onClick(View v) {
                 if (currentPage != totalPages) {
                     stopTaskIfRunning();
-                    String url = Connection.getCertainPageUrlOfPopularMovies(getSortOrder(),
+                    String url = Connection.getCertainPageUrl(getSortOrder(),
                             (currentPage + 1));
                     updateResults(url);
                 }
@@ -127,7 +127,7 @@ public class MainActivityFragment extends Fragment {
     }
 
     private void updateResults() {
-        updateResults(Connection.getPopularMoviesUrl(getSortOrder()));
+        updateResults(Connection.getMoviesUrl(getSortOrder()));
     }
 
     private String getSortOrder() {

@@ -71,19 +71,18 @@ public class Connection {
         return resultJsonString;
     }
 
-    public static String getPopularMoviesUrl(String order) {
+    public static String getMoviesUrl(String order) {
         Uri uri = Uri.parse(BASE_API_URL).buildUpon()
                 .appendEncodedPath(MOVIE_PART)
-                .appendQueryParameter(SORT_BY_KEY, SORT_BY_POPULARITY
-                        + order)
+                .appendQueryParameter(SORT_BY_KEY, order)
                 .appendQueryParameter(API_KEY_KEY, API_KEY_VALUE).build();
         return uri.toString();
     }
 
-    public static String getCertainPageUrlOfPopularMovies(String order, int page) {
+    public static String getCertainPageUrl(String order, int page) {
         Uri uri = Uri.parse(BASE_API_URL).buildUpon()
                 .appendEncodedPath(MOVIE_PART)
-                .appendQueryParameter(SORT_BY_KEY, SORT_BY_POPULARITY + order)
+                .appendQueryParameter(SORT_BY_KEY, order)
                 .appendQueryParameter(PAGE_KEY, Integer.toString(page))
                 .appendQueryParameter(API_KEY_KEY, API_KEY_VALUE).build();
         return uri.toString();

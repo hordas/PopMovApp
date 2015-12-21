@@ -4,20 +4,23 @@
     <!-- Preference titles -->
     <string name="pref_title_popular_movies_sort_order">Movies order</string>
     <string-array name="pref_movies_sort_order_list_titles">
-        <item>Descending</item>
-        <item>Ascending</item>
+        <item>By popularity</item>
+        <item>By vote average</item>
+        <item>Favorites</item>
     </string-array>
 
     <!-- Preference key -->
     <string name="pref_key_popular_movies_sort_order" translatable="false">movies_order</string>
 
     <!-- Values -->
-    <string name="movies_sort_order_default">@string/movies_sort_order_desc_value</string>
-    <string name="movies_sort_order_asc_value" translatable="false">asc</string>
-    <string name="movies_sort_order_desc_value" translatable="false">desc</string>
+    <string name="movies_sort_by_popularity" translatable="false">popularity.desc</string>
+    <string name="movies_sort_by_vote_average" translatable="false">vote_average.desc</string>
+    <string name="movies_sort_favorites" translatable="false">favorite</string>
+    <string name="movies_sort_order_default">@string/movies_sort_by_vote_average</string>
     <array name="pref_movies_sort_order_list_values">
-        <item>@string/movies_sort_order_desc_value</item>
-        <item>@string/movies_sort_order_asc_value</item>
+        <item>@string/movies_sort_by_vote_average</item>
+        <item>@string/movies_sort_by_popularity</item>
+        <item>@string/movies_sort_favorites</item>
     </array>
 
     <!-- Button titles -->
