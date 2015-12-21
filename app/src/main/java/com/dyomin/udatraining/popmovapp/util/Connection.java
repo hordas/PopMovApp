@@ -24,7 +24,6 @@ public class Connection {
     private static final String MOVIE_PART = "discover/movie";
     private static final String MOVIE_FOR_ID_PART = "movie/";
     private static final String SORT_BY_KEY = "sort_by";
-    private static final String SORT_BY_POPULARITY = "popularity.";
     private static final String PAGE_KEY = "page";
 
     private static final String LOG_TAG = Connection.class.getSimpleName();

@@ -7,7 +7,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 /*
- * Activity for details info.
+ * Activity for details info about selected movie.
  */
 
 @SuppressWarnings("deprecation")

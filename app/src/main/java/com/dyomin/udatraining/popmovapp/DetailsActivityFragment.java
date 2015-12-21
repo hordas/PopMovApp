@@ -18,7 +18,7 @@ import com.squareup.picasso.Picasso;
 
 
 /**
- * A placeholder fragment containing a simple view.
+ * Contains information about selected movie.
  */
 public class DetailsActivityFragment extends Fragment {
 
