@@ -2,7 +2,7 @@ package com.dyomin.udatraining.popmovapp.util;
 
 import android.net.Uri;
 import android.util.Log;
-
+import com.dyomin.udatraining.popmovapp.BuildConfig;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -19,7 +19,7 @@ public class Connection {
 
     private static final String BASE_API_URL = "https://api.themoviedb.org/3";
     private static final String BASE_IMAGE_URL = "http://image.tmdb.org/t/p/w342";
-    private static final String API_KEY_VALUE = NoCommit.API_KEY;
+    private static final String API_KEY_VALUE = BuildConfig.POPULAR_MOVIES_APP_API_KEY;
     private static final String API_KEY_KEY = "api_key";
     private static final String MOVIE_PART = "discover/movie";
     private static final String MOVIE_FOR_ID_PART = "movie/";
