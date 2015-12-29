@@ -10,4 +10,6 @@
     <string name="poster_content_description">Movie poster</string>
     <string name="left_arrow">&#60;</string>
     <string name="right_arrow">&#62;</string>
+    <string name="trailers_label">Trailers:</string>
+    <string name="trailer_stub_name">Some trailer</string>
 </resources>
