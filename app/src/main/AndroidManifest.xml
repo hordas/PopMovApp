@@ -5,7 +5,6 @@
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
-        android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
@@ -34,6 +33,15 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.dyomin.udatraining.popmovapp.MainActivity" />
         </activity>
+        <!-- SyncAdapter's dummy authentication service -->
+        <service android:name=".sync.PopMovAppAuthenticatorService">
+            <intent-filter>
+                <action android:name="android.accounts.AccountAuthenticator"/>
+            </intent-filter>
+            <meta-data
+                android:name="android.accounts.AccountAuthenticator"
+                android:resource="@xml/authenticator"/>
+        </service>
     </application>
 
 </manifest>

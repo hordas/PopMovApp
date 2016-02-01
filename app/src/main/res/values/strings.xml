@@ -12,4 +12,12 @@
     <string name="right_arrow">&#62;</string>
     <string name="trailers_label">Trailers:</string>
     <string name="trailer_stub_name">Some trailer</string>
+
+    <!-- toogle button state names -->
+    <string name="toggle_unchecked">Mark as \nfavorite</string>
+    <string name="toggle_checked">Remove from \nfavorites</string>
+    
+    <!-- account type strings -->
+    <string name="sync_account_type">popmovapp.dyomin.com</string>
+
 </resources>

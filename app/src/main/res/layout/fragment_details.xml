@@ -1,9 +1,10 @@
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v4.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="match_parent">
 
     <RelativeLayout
+        android:id="@+id/relative_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         tools:context="com.dyomin.udatraining.popmovapp.DetailsActivityFragment">
@@ -69,6 +70,19 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
+        <ToggleButton
+            android:id="@+id/button_starred"
+            android:layout_below="@+id/textview_movie_rating"
+            android:layout_toEndOf="@+id/imageview_movie_poster"
+            android:layout_toRightOf="@+id/imageview_movie_poster"
+            android:background="@drawable/toggle_starred"
+            android:textOff="@string/toggle_unchecked"
+            android:textOn="@string/toggle_checked"
+            android:textColor="@android:color/background_light"
+            android:textSize="12sp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
         <TextView
             android:id="@+id/textview_movie_synopsis"
             android:layout_below="@+id/imageview_movie_poster"
@@ -100,5 +114,4 @@
             android:layout_height="wrap_content"/>
 
     </RelativeLayout>
-
-</ScrollView>
+</android.support.v4.widget.NestedScrollView>

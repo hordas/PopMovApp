@@ -5,6 +5,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.LocalBroadcastManager;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -31,7 +32,7 @@ public class MainActivityFragment extends Fragment {
     private TextView buttonLeft;
     private TextView buttonRight;
     private TextView textViewCurrentPage;
-    private PostersUploader pu;
+    private PostersUploader postersUploader;
 
     private int totalPages;
     private int currentPage;
@@ -71,8 +72,8 @@ public class MainActivityFragment extends Fragment {
     }
 
     private void stopTaskIfRunning() {
-        if (pu.getStatus().equals(AsyncTask.Status.RUNNING)) {
-            pu.cancel(true);
+        if (postersUploader.getStatus().equals(AsyncTask.Status.RUNNING)) {
+            postersUploader.cancel(true);
         }
     }
 
@@ -88,11 +89,10 @@ public class MainActivityFragment extends Fragment {
         gv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Callback callback = (Callback) getActivity();
                 stopTaskIfRunning();
-                String filmId = posterAdapter.getIdByPosition(position);
-                Intent intent = new Intent(getActivity(), DetailsActivity.class);
-                intent.putExtra(Intent.EXTRA_TEXT, filmId);
-                startActivity(intent);
+                String filmId = posterAdapter.getMovieIdByPosition(position);
+                callback.onItemSelected(Integer.parseInt(filmId));
             }
         });
         buttonLeft.setOnClickListener(new View.OnClickListener() {
@@ -122,8 +122,8 @@ public class MainActivityFragment extends Fragment {
     }
 
     private void updateResults(String url) {
-        pu = new PostersUploader();
-        pu.execute(url);
+        postersUploader = new PostersUploader();
+        postersUploader.execute(url);
     }
 
     private void updateResults() {
@@ -159,12 +159,18 @@ public class MainActivityFragment extends Fragment {
     private void setBatchResults(PosterBatch batch) {
         if (posterAdapter != null) {
             posterAdapter.updateResults(batch.getPosters());
-            setPages(batch);
         } else {
             posterAdapter = new PosterAdapter(getActivity(), batch.getPosters());
             gv.setAdapter(posterAdapter);
-            setPages(batch);
         }
+        setPages(batch);
+        sendBootIntent(batch.getPosters().get(0).getFilmId());
+    }
+
+    private void sendBootIntent(String movieId) {
+        Intent bootIntent = new Intent(MainActivity.TMDB_RESULTS_UPDATED);
+        bootIntent.putExtra(DetailsActivityFragment.MOVIE_TMDB_ID, Integer.parseInt(movieId));
+        LocalBroadcastManager.getInstance(getContext()).sendBroadcast(bootIntent);
     }
 
     private void setPages(PosterBatch batch) {
@@ -189,5 +195,9 @@ public class MainActivityFragment extends Fragment {
         } else {
             buttonRight.setVisibility(View.VISIBLE);
         }
+    }
+
+    public interface Callback {
+        void onItemSelected(int filmId);
     }
 }

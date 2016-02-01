@@ -30,7 +30,7 @@ public class PosterAdapter extends BaseAdapter {
         notifyDataSetChanged();
     }
 
-    public String getIdByPosition(int position) {
+    public String getMovieIdByPosition(int position) {
         return posters.get(position).getFilmId();
     }
 
@@ -51,15 +51,12 @@ public class PosterAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        ImageView imageView;
         if (convertView == null) {
-            imageView = new ImageView(context);
-        } else {
-            imageView = (ImageView) convertView;
+            convertView = new ImageView(context);
         }
         Picasso.with(context).load(
                 Connection.getImageUrl(posters.get(position).getPosterUrl())
-        ).into(imageView);
-        return imageView;
+        ).into((ImageView) convertView);
+        return convertView;
     }
 }

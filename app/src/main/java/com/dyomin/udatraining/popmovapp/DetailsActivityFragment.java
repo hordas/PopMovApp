@@ -1,6 +1,5 @@
 package com.dyomin.udatraining.popmovapp;
 
-import android.content.Intent;
 import android.os.AsyncTask;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
@@ -22,6 +21,8 @@ import com.squareup.picasso.Picasso;
  */
 public class DetailsActivityFragment extends Fragment {
 
+    public static final String MOVIE_TMDB_ID = "movie_tmdb_id";
+
     private ImageView posterView;
     private TextView releaseDate;
     private TextView voteAverage;
@@ -41,8 +42,8 @@ public class DetailsActivityFragment extends Fragment {
         voteAverage = (TextView) v.findViewById(R.id.textview_movie_rating);
         releaseDate = (TextView) v.findViewById(R.id.textview_movie_release_date);
 
-        String movieId = getActivity().getIntent().getStringExtra(Intent.EXTRA_TEXT);
-        String movieUrl = Connection.getMovieUrl(movieId);
+        int movieId = getArguments().getInt(MOVIE_TMDB_ID);
+        String movieUrl = Connection.getMovieUrl(Integer.toString(movieId));
         MovieDetailsDownloader mdd = new MovieDetailsDownloader();
         mdd.execute(movieUrl);
         return v;
