@@ -1,8 +1,8 @@
 package com.dyomin.udatraining.popmovapp.util;
 
 import com.dyomin.udatraining.popmovapp.data.MovieDetails;
-import com.dyomin.udatraining.popmovapp.data.Poster;
-import com.dyomin.udatraining.popmovapp.data.PosterBatch;
+import com.dyomin.udatraining.popmovapp.data.poster.Poster;
+import com.dyomin.udatraining.popmovapp.data.poster.PosterBatch;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;

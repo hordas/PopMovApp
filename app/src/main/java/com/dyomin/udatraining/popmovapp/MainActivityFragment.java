@@ -15,9 +15,8 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.TextView;
-
-import com.dyomin.udatraining.popmovapp.data.PosterAdapter;
-import com.dyomin.udatraining.popmovapp.data.PosterBatch;
+import com.dyomin.udatraining.popmovapp.data.poster.PosterAdapter;
+import com.dyomin.udatraining.popmovapp.data.poster.PosterBatch;
 import com.dyomin.udatraining.popmovapp.util.Connection;
 import com.dyomin.udatraining.popmovapp.util.JsonParser;
 

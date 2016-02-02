@@ -1,4 +1,4 @@
-package com.dyomin.udatraining.popmovapp.data;
+package com.dyomin.udatraining.popmovapp.data.poster;
 
 import java.util.List;
 

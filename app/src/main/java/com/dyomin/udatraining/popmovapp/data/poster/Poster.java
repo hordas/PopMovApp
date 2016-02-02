@@ -1,4 +1,4 @@
-package com.dyomin.udatraining.popmovapp.data;
+package com.dyomin.udatraining.popmovapp.data.poster;
 
 /**
  * Class contains info about posters url and movie id.
