@@ -10,12 +10,6 @@ public class Trailer {
     private String trailerKey;
     private int movieTmdbId;
 
-    public Trailer(String name, String trailerKey, int movieTmdbId) {
-        this.name = name;
-        this.trailerKey = trailerKey;
-        this.movieTmdbId = movieTmdbId;
-    }
-
     public int getMovieTmdbId() {
         return movieTmdbId;
     }
@@ -26,5 +20,17 @@ public class Trailer {
 
     public String getName() {
         return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setTrailerKey(String trailerKey) {
+        this.trailerKey = trailerKey;
+    }
+
+    public void setMovieTmdbId(int movieTmdbId) {
+        this.movieTmdbId = movieTmdbId;
     }
 }

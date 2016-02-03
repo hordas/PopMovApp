@@ -1,6 +1,8 @@
 package com.dyomin.udatraining.popmovapp.util;
 
 import com.dyomin.udatraining.popmovapp.data.MovieDetails;
+import com.dyomin.udatraining.popmovapp.data.Review;
+import com.dyomin.udatraining.popmovapp.data.Trailer;
 import com.dyomin.udatraining.popmovapp.data.poster.Poster;
 import com.dyomin.udatraining.popmovapp.data.poster.PosterBatch;
 import org.json.JSONArray;
@@ -51,5 +53,47 @@ public class JsonParser {
             jse.printStackTrace();
         }
         return movie;
+    }
+
+    @SuppressWarnings("unused")
+    public static List<Trailer> parseTrailers(String response) {
+        List<Trailer> resultList = new ArrayList<>();
+        try {
+            JSONObject rootObj = new JSONObject(response);
+            int id = rootObj.getInt("id");
+            JSONArray trailersJSONArray = rootObj.getJSONArray("results");
+            for (int i = 0; i < trailersJSONArray.length(); i++) {
+                JSONObject trailerJSON = trailersJSONArray.getJSONObject(i);
+                Trailer trailer = new Trailer();
+                trailer.setMovieTmdbId(id);
+                trailer.setName(trailerJSON.getString("name"));
+                trailer.setTrailerKey(trailerJSON.getString("key"));
+                resultList.add(trailer);
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return resultList;
+    }
+
+    @SuppressWarnings("unused")
+    public static List<Review> parseReviews(String response) {
+        List<Review> resultList = new ArrayList<>();
+        try {
+            JSONObject rootObj = new JSONObject(response);
+            int id = rootObj.getInt("id");
+            JSONArray trailersJSONArray = rootObj.getJSONArray("results");
+            for (int i = 0; i < trailersJSONArray.length(); i++) {
+                JSONObject reviewJSON = trailersJSONArray.getJSONObject(i);
+                Review review = new Review();
+                review.setMovieTmdbId(id);
+                review.setAuthor(reviewJSON.getString("author"));
+                review.setAuthor(reviewJSON.getString("content"));
+                resultList.add(review);
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return resultList;
     }
 }

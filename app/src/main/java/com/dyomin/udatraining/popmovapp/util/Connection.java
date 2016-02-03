@@ -25,6 +25,8 @@ public class Connection {
     private static final String MOVIE_FOR_ID_PART = "movie/";
     private static final String SORT_BY_KEY = "sort_by";
     private static final String PAGE_KEY = "page";
+    private static final String TRAILERS_PART = "/videos";
+    private static final String REVIEWS_PART = "/reviews";
 
     private static final String LOG_TAG = Connection.class.getSimpleName();
 
@@ -98,5 +100,19 @@ public class Connection {
         Uri uri = Uri.parse(BASE_IMAGE_URL).buildUpon()
                 .appendEncodedPath(imagePathPart).build();
         return uri.toString();
+    }
+
+    public static String getTrailersUrl(String movieId) {
+        return Uri.parse(BASE_API_URL).buildUpon()
+                .appendEncodedPath(MOVIE_FOR_ID_PART + movieId)
+                .appendEncodedPath(TRAILERS_PART)
+                .appendQueryParameter(API_KEY_KEY, API_KEY_VALUE).build().toString();
+    }
+
+    public static String getReviewsUrl(String movieId) {
+        return Uri.parse(BASE_API_URL).buildUpon()
+                .appendEncodedPath(MOVIE_FOR_ID_PART + movieId)
+                .appendEncodedPath(REVIEWS_PART)
+                .appendQueryParameter(API_KEY_KEY, API_KEY_VALUE).build().toString();
     }
 }
