@@ -1,9 +1,9 @@
 package com.dyomin.udatraining.popmovapp.util;
 
-import com.dyomin.udatraining.popmovapp.data.MovieDetails;
+import com.dyomin.udatraining.popmovapp.DetailsFragment;
+import com.dyomin.udatraining.popmovapp.data.poster.MovieDetails;
 import com.dyomin.udatraining.popmovapp.data.Review;
 import com.dyomin.udatraining.popmovapp.data.Trailer;
-import com.dyomin.udatraining.popmovapp.data.poster.Poster;
 import com.dyomin.udatraining.popmovapp.data.poster.PosterBatch;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -20,19 +20,23 @@ public class JsonParser {
 
     public static PosterBatch parseTopMovies(String response) {
         PosterBatch batch = new PosterBatch();
-        List<Poster> posters = new ArrayList<>();
+        List<MovieDetails> movieDetailses = new ArrayList<>();
         try {
             JSONObject responseObject = new JSONObject(response);
             JSONArray results = responseObject.getJSONArray("results");
             batch.setCurrentPage(responseObject.getInt("page"));
             for (int i = 0; i < results.length(); i++) {
                 JSONObject filmInfo = results.getJSONObject(i);
-                Poster poster = new Poster();
-                poster.setFilmId(Integer.toString(filmInfo.getInt("id")));
-                poster.setPosterUrl(filmInfo.getString("poster_path"));
-                posters.add(poster);
+                MovieDetails movieDetails = new MovieDetails();
+                movieDetails.setMovieId(filmInfo.getInt("id"));
+                movieDetails.setPosterUrl(filmInfo.getString("poster_path"));
+                movieDetails.setTitle(filmInfo.getString("title"));
+                movieDetails.setOverview(filmInfo.getString("overview"));
+                movieDetails.setVoteAverage(Double.toString(filmInfo.getDouble("vote_average")));
+                movieDetails.setReleaseDate(filmInfo.getString("release_date"));
+                movieDetailses.add(movieDetails);
             }
-            batch.setPosters(posters);
+            batch.setMovieDetailses(movieDetailses);
             batch.setTotalPages(responseObject.getInt("total_pages"));
         } catch (JSONException e) {
             e.printStackTrace();
@@ -46,7 +50,7 @@ public class JsonParser {
             JSONObject responseObject = new JSONObject(response);
             movie.setTitle(responseObject.getString("original_title"));
             movie.setOverview(responseObject.getString("overview"));
-            movie.setPosterPath(responseObject.getString("poster_path"));
+            movie.setPosterUrl(responseObject.getString("poster_path"));
             movie.setReleaseDate(responseObject.getString("release_date"));
             movie.setVoteAverage(responseObject.getString("vote_average"));
         } catch (JSONException jse) {

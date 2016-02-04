@@ -10,43 +10,39 @@ import com.squareup.picasso.Picasso;
 import java.util.List;
 
 /**
- * Adds posters to MainActivityFragment.
+ * Adds movieDetailses to MainActivityFragment.
  * --
  * Created by Admin on 19.07.2015.
  */
 public class PosterAdapter extends BaseAdapter {
 
-    private List<Poster> posters;
+    private List<MovieDetails> movieDetailses;
     private Context context;
 
-    public PosterAdapter(Context context, List<Poster> posterList) {
+    public PosterAdapter(Context context, List<MovieDetails> movieDetailsList) {
         this.context = context;
-        this.posters = posterList;
+        this.movieDetailses = movieDetailsList;
     }
 
-    public void updateResults(List<Poster> results) {
-        posters = results;
+    public void updateResults(List<MovieDetails> results) {
+        movieDetailses = results;
         //Triggers the list update
         notifyDataSetChanged();
     }
 
-    public String getMovieIdByPosition(int position) {
-        return posters.get(position).getFilmId();
-    }
-
     @Override
     public int getCount() {
-        return posters.size();
+        return movieDetailses.size();
     }
 
     @Override
     public Object getItem(int position) {
-        return null;
+        return movieDetailses.get(position);
     }
 
     @Override
     public long getItemId(int position) {
-        return 0;
+        return position;
     }
 
     @Override
@@ -55,7 +51,7 @@ public class PosterAdapter extends BaseAdapter {
             convertView = new ImageView(context);
         }
         Picasso.with(context).load(
-                Connection.getImageUrl(posters.get(position).getPosterUrl())
+                Connection.getImageUrl(movieDetailses.get(position).getPosterUrl())
         ).into((ImageView) convertView);
         return convertView;
     }

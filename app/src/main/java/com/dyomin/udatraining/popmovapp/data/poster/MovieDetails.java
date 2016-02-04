@@ -1,4 +1,4 @@
-package com.dyomin.udatraining.popmovapp.data;
+package com.dyomin.udatraining.popmovapp.data.poster;
 
 /**
  * Class contains detail info about movie.
@@ -7,9 +7,10 @@ package com.dyomin.udatraining.popmovapp.data;
  */
 public class MovieDetails {
 
+    private int movieId;
     private String title;
     private String overview;
-    private String posterPath;
+    private String posterUrl;
     private String voteAverage;
     private String releaseDate;
 
@@ -21,12 +22,12 @@ public class MovieDetails {
         this.overview = overview;
     }
 
-    public String getPosterPath() {
-        return posterPath;
+    public String getPosterUrl() {
+        return posterUrl;
     }
 
-    public void setPosterPath(String posterPath) {
-        this.posterPath = posterPath;
+    public void setPosterUrl(String posterUrl) {
+        this.posterUrl = posterUrl;
     }
 
     public String getVoteAverage() {
@@ -51,5 +52,13 @@ public class MovieDetails {
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public int getMovieId() {
+        return movieId;
+    }
+
+    public void setMovieId(int movieId) {
+        this.movieId = movieId;
     }
 }

@@ -1,6 +1,5 @@
 package com.dyomin.udatraining.popmovapp;
 
-import android.content.Intent;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -20,11 +19,9 @@ public class DetailsActivity extends ActionBarActivity {
         setContentView(R.layout.activity_details);
 
         if (savedInstanceState == null) {
-            DetailsActivityFragment fragment = new DetailsActivityFragment();
-            Intent intent = getIntent();
-            int movieId = intent.getIntExtra(Intent.EXTRA_TEXT, -1);
-            Bundle args = new Bundle();
-            args.putInt(DetailsActivityFragment.MOVIE_TMDB_ID, movieId);
+            Bundle args = DetailsFragment.createBundleFromDetailsIntent(getIntent());
+
+            DetailsFragment fragment = new DetailsFragment();
             fragment.setArguments(args);
             FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
             ft.add(R.id.framelayout_movie_details, fragment).commit();

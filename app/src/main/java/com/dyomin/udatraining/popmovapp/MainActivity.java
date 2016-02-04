@@ -7,7 +7,8 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.ActionBarActivity;
-import com.dyomin.udatraining.popmovapp.provider.movie.MovieSelection;
+
+import com.dyomin.udatraining.popmovapp.data.poster.MovieDetails;
 
 @SuppressWarnings("deprecation")
 public class MainActivity extends ActionBarActivity implements MainActivityFragment.Callback{
@@ -18,8 +19,7 @@ public class MainActivity extends ActionBarActivity implements MainActivityFragm
     private BroadcastReceiver bootReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            int movieId = intent.getIntExtra(DetailsActivityFragment.MOVIE_TMDB_ID, -1);
-            onItemSelected(movieId);
+            onItemSelected(DetailsFragment.createPosterFromIntentData(intent));
         }
     };
 
@@ -46,21 +46,19 @@ public class MainActivity extends ActionBarActivity implements MainActivityFragm
     }
 
     @Override
-    public void onItemSelected(int movieId) {
-        MovieSelection where = new MovieSelection();
-        where.tmdbId(movieId);
+    public void onItemSelected(MovieDetails movieDetails) {
+//        MovieSelection where = new MovieSelection();
+//        where.tmdbId(movieId);
 
         if (twoPane) {
-            Bundle args = new Bundle();
-            args.putInt(DetailsActivityFragment.MOVIE_TMDB_ID, movieId);
-
-            DetailsActivityFragment fragment = new DetailsActivityFragment();
+            Bundle args = DetailsFragment.putDataIntoTheBundle(movieDetails);
+            DetailsFragment fragment = new DetailsFragment();
             fragment.setArguments(args);
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.details_fragment, fragment).commit();
         } else {
             Intent intent = new Intent(this, DetailsActivity.class);
-            intent.putExtra(Intent.EXTRA_TEXT, movieId);
+            intent = DetailsFragment.puDataIntoIntent(intent, movieDetails);
             startActivity(intent);
         }
     }

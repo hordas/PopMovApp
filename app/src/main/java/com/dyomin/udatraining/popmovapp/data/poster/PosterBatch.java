@@ -3,23 +3,23 @@ package com.dyomin.udatraining.popmovapp.data.poster;
 import java.util.List;
 
 /**
- * Contains batch of posters for current page, a number of current page
+ * Contains batch of movieDetailses for current page, a number of current page
  * and total amount of pages.
  * --
  * Created by Admin on 20.07.2015.
  */
 public class PosterBatch {
 
-    private List<Poster> posters;
+    private List<MovieDetails> movieDetailses;
     private int currentPage;
     private int totalPages;
 
-    public List<Poster> getPosters() {
-        return posters;
+    public List<MovieDetails> getMovieDetailses() {
+        return movieDetailses;
     }
 
-    public void setPosters(List<Poster> posters) {
-        this.posters = posters;
+    public void setMovieDetailses(List<MovieDetails> movieDetailses) {
+        this.movieDetailses = movieDetailses;
     }
 
     public int getCurrentPage() {

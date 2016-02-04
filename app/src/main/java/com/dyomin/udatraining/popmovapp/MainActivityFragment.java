@@ -15,6 +15,8 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.TextView;
+
+import com.dyomin.udatraining.popmovapp.data.poster.MovieDetails;
 import com.dyomin.udatraining.popmovapp.data.poster.PosterAdapter;
 import com.dyomin.udatraining.popmovapp.data.poster.PosterBatch;
 import com.dyomin.udatraining.popmovapp.util.Connection;
@@ -90,8 +92,7 @@ public class MainActivityFragment extends Fragment {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Callback callback = (Callback) getActivity();
                 stopTaskIfRunning();
-                String filmId = posterAdapter.getMovieIdByPosition(position);
-                callback.onItemSelected(Integer.parseInt(filmId));
+                callback.onItemSelected((MovieDetails) posterAdapter.getItem(position));
             }
         });
         buttonLeft.setOnClickListener(new View.OnClickListener() {
@@ -157,18 +158,18 @@ public class MainActivityFragment extends Fragment {
 
     private void setBatchResults(PosterBatch batch) {
         if (posterAdapter != null) {
-            posterAdapter.updateResults(batch.getPosters());
+            posterAdapter.updateResults(batch.getMovieDetailses());
         } else {
-            posterAdapter = new PosterAdapter(getActivity(), batch.getPosters());
+            posterAdapter = new PosterAdapter(getActivity(), batch.getMovieDetailses());
             gv.setAdapter(posterAdapter);
         }
         setPages(batch);
-        sendBootIntent(batch.getPosters().get(0).getFilmId());
+        sendBootIntent(batch.getMovieDetailses().get(0));
     }
 
-    private void sendBootIntent(String movieId) {
+    private void sendBootIntent(MovieDetails movieDetails) {
         Intent bootIntent = new Intent(MainActivity.TMDB_RESULTS_UPDATED);
-        bootIntent.putExtra(DetailsActivityFragment.MOVIE_TMDB_ID, Integer.parseInt(movieId));
+        bootIntent = DetailsFragment.puDataIntoIntent(bootIntent, movieDetails);
         LocalBroadcastManager.getInstance(getContext()).sendBroadcast(bootIntent);
     }
 
@@ -197,6 +198,6 @@ public class MainActivityFragment extends Fragment {
     }
 
     public interface Callback {
-        void onItemSelected(int filmId);
+        void onItemSelected(MovieDetails movieDetails);
     }
 }
