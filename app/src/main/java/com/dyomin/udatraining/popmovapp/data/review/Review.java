@@ -1,13 +1,17 @@
-package com.dyomin.udatraining.popmovapp.data;
+package com.dyomin.udatraining.popmovapp.data.review;
 
 /**
+ * Contains values for review entity.
+ * --
  * Created by Admin on 03.02.2016.
  */
 public class Review {
+
     private int movieTmdbId;
     private String author;
     private String content;
 
+    @SuppressWarnings("unused")
     public int getMovieTmdbId() {
         return movieTmdbId;
     }

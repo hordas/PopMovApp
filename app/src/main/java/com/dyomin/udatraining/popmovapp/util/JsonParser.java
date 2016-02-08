@@ -1,9 +1,8 @@
 package com.dyomin.udatraining.popmovapp.util;
 
-import com.dyomin.udatraining.popmovapp.DetailsFragment;
 import com.dyomin.udatraining.popmovapp.data.poster.MovieDetails;
-import com.dyomin.udatraining.popmovapp.data.Review;
-import com.dyomin.udatraining.popmovapp.data.Trailer;
+import com.dyomin.udatraining.popmovapp.data.review.Review;
+import com.dyomin.udatraining.popmovapp.data.trailer.Trailer;
 import com.dyomin.udatraining.popmovapp.data.poster.PosterBatch;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -18,7 +17,7 @@ import java.util.List;
  */
 public class JsonParser {
 
-    public static PosterBatch parseTopMovies(String response) {
+    public static PosterBatch parseMovies(String response) {
         PosterBatch batch = new PosterBatch();
         List<MovieDetails> movieDetailses = new ArrayList<>();
         try {
@@ -26,14 +25,8 @@ public class JsonParser {
             JSONArray results = responseObject.getJSONArray("results");
             batch.setCurrentPage(responseObject.getInt("page"));
             for (int i = 0; i < results.length(); i++) {
-                JSONObject filmInfo = results.getJSONObject(i);
-                MovieDetails movieDetails = new MovieDetails();
-                movieDetails.setMovieId(filmInfo.getInt("id"));
-                movieDetails.setPosterUrl(filmInfo.getString("poster_path"));
-                movieDetails.setTitle(filmInfo.getString("title"));
-                movieDetails.setOverview(filmInfo.getString("overview"));
-                movieDetails.setVoteAverage(Double.toString(filmInfo.getDouble("vote_average")));
-                movieDetails.setReleaseDate(filmInfo.getString("release_date"));
+                JSONObject movie = results.getJSONObject(i);
+                MovieDetails movieDetails = parseMovieDetails(movie);
                 movieDetailses.add(movieDetails);
             }
             batch.setMovieDetailses(movieDetailses);
@@ -44,10 +37,10 @@ public class JsonParser {
         return batch;
     }
 
-    public static MovieDetails parseMovieDetails(String response) {
+    public static MovieDetails parseMovieDetails(JSONObject responseObject) {
         MovieDetails movie = new MovieDetails();
         try {
-            JSONObject responseObject = new JSONObject(response);
+            movie.setMovieId(responseObject.getInt("id"));
             movie.setTitle(responseObject.getString("original_title"));
             movie.setOverview(responseObject.getString("overview"));
             movie.setPosterUrl(responseObject.getString("poster_path"));
@@ -92,7 +85,7 @@ public class JsonParser {
                 Review review = new Review();
                 review.setMovieTmdbId(id);
                 review.setAuthor(reviewJSON.getString("author"));
-                review.setAuthor(reviewJSON.getString("content"));
+                review.setContent(reviewJSON.getString("content"));
                 resultList.add(review);
             }
         } catch (JSONException e) {

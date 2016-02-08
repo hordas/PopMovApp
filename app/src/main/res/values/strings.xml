@@ -11,7 +11,9 @@
     <string name="left_arrow">&#60;</string>
     <string name="right_arrow">&#62;</string>
     <string name="trailers_label">Trailers:</string>
+    <string name="reviews_label">Reviews:</string>
     <string name="trailer_stub_name">Some trailer</string>
+    <string name="button_play_content_description">Play trailer button</string>
 
     <!-- toogle button state names -->
     <string name="toggle_unchecked">Mark as \nfavorite</string>

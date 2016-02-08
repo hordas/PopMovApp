@@ -25,12 +25,12 @@ public class Connection {
     private static final String MOVIE_FOR_ID_PART = "movie/";
     private static final String SORT_BY_KEY = "sort_by";
     private static final String PAGE_KEY = "page";
-    private static final String TRAILERS_PART = "/videos";
-    private static final String REVIEWS_PART = "/reviews";
+    private static final String TRAILERS_PART = "videos";
+    private static final String REVIEWS_PART = "reviews";
 
     private static final String LOG_TAG = Connection.class.getSimpleName();
 
-    public static String processRequest(String inputUrl) {
+    synchronized public static String processRequest(String inputUrl) {
 
         HttpURLConnection urlConnection = null;
         BufferedReader reader = null;
@@ -85,13 +85,6 @@ public class Connection {
                 .appendEncodedPath(MOVIE_PART)
                 .appendQueryParameter(SORT_BY_KEY, order)
                 .appendQueryParameter(PAGE_KEY, Integer.toString(page))
-                .appendQueryParameter(API_KEY_KEY, API_KEY_VALUE).build();
-        return uri.toString();
-    }
-
-    public static String getMovieUrl(String id) {
-        Uri uri = Uri.parse(BASE_API_URL).buildUpon()
-                .appendEncodedPath(MOVIE_FOR_ID_PART + id)
                 .appendQueryParameter(API_KEY_KEY, API_KEY_VALUE).build();
         return uri.toString();
     }

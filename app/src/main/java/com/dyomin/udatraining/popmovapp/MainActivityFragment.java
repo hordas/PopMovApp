@@ -14,8 +14,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
-
 import com.dyomin.udatraining.popmovapp.data.poster.MovieDetails;
 import com.dyomin.udatraining.popmovapp.data.poster.PosterAdapter;
 import com.dyomin.udatraining.popmovapp.data.poster.PosterBatch;
@@ -34,6 +34,7 @@ public class MainActivityFragment extends Fragment {
     private TextView buttonRight;
     private TextView textViewCurrentPage;
     private PostersUploader postersUploader;
+    private ProgressBar progressBarPosters;
 
     private int totalPages;
     private int currentPage;
@@ -86,6 +87,7 @@ public class MainActivityFragment extends Fragment {
         buttonLeft = (TextView) v.findViewById(R.id.textview_left_arrow);
         buttonRight = (TextView) v.findViewById(R.id.textview_right_arrow);
         textViewCurrentPage = (TextView) v.findViewById(R.id.textview_current_page);
+        progressBarPosters = (ProgressBar) v.findViewById(R.id.progressbar_posters);
         updateResults();
         gv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -140,19 +142,25 @@ public class MainActivityFragment extends Fragment {
 
         private final String LOG_TAG = PostersUploader.class.getSimpleName();
 
+        protected void onPreExecute() {
+            textViewCurrentPage.setVisibility(View.INVISIBLE);
+            progressBarPosters.setVisibility(View.VISIBLE);
+        }
+
         @Override
         protected PosterBatch doInBackground(String ... params) {
             String url = params[0];
-            return JsonParser.parseTopMovies(Connection.processRequest(url));
+            return JsonParser.parseMovies(Connection.processRequest(url));
         }
 
         @Override
         protected void onPostExecute(PosterBatch posterBatch) {
-            if (posterBatch != null) {
-                setBatchResults(posterBatch);
-            } else {
+            progressBarPosters.setVisibility(View.INVISIBLE);
+            textViewCurrentPage.setVisibility(View.VISIBLE);
+            if (posterBatch == null) {
                 throw new RuntimeException(LOG_TAG + "PosterBatch == null.");
             }
+            setBatchResults(posterBatch);
         }
     }
 

@@ -98,20 +98,79 @@
             android:layout_height="1dp"
             android:background="@color/teal_700"/>
 
-        <TextView
-            android:id="@+id/textview_label_trailers"
-            android:textSize="16sp"
-            android:text="@string/trailers_label"
-            android:layout_margin="20dp"
+        <RelativeLayout
+            android:id="@+id/trailers_layout"
             android:layout_below="@+id/horizontal_line"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-
-        <ListView
-            android:id="@+id/listview_trailers"
-            android:layout_below="@+id/textview_label_trailers"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/textview_label_trailers"
+                android:textSize="16sp"
+                android:text="@string/trailers_label"
+                android:layout_margin="20dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <LinearLayout
+                android:id="@+id/linearlayout_trailers"
+                android:layout_below="@+id/textview_label_trailers"
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+            <ProgressBar
+                android:id="@+id/progressbar_trailers"
+                android:layout_below="@+id/textview_label_trailers"
+                android:layout_alignStart="@+id/textview_label_trailers"
+                android:layout_alignLeft="@+id/textview_label_trailers"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="invisible"
+                style="@android:style/Widget.ProgressBar"/>
+
+        </RelativeLayout>
+
+        <View
+            android:id="@+id/horizontal_line_2"
+            android:layout_width="match_parent"
+            android:layout_below="@+id/trailers_layout"
+            android:layout_margin="10dp"
+            android:layout_height="1dp"
+            android:background="@color/teal_700"/>
+
+        <RelativeLayout
+            android:id="@+id/reviews_layout"
+            android:layout_below="@+id/horizontal_line_2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/textview_label_reviews"
+                android:textSize="16sp"
+                android:text="@string/reviews_label"
+                android:layout_margin="20dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <LinearLayout
+                android:id="@+id/linearlayout_reviews"
+                android:layout_below="@+id/textview_label_reviews"
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+            <ProgressBar
+                android:id="@+id/progressbar_reviews"
+                android:layout_below="@+id/textview_label_reviews"
+                android:layout_alignStart="@+id/textview_label_reviews"
+                android:layout_alignLeft="@+id/textview_label_reviews"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="invisible"
+                style="@android:style/Widget.ProgressBar"/>
+
+        </RelativeLayout>
 
     </RelativeLayout>
 </android.support.v4.widget.NestedScrollView>

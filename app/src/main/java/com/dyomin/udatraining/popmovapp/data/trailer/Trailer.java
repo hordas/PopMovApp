@@ -1,7 +1,8 @@
-package com.dyomin.udatraining.popmovapp.data;
+package com.dyomin.udatraining.popmovapp.data.trailer;
 
 /**
- * Contains trailer information.
+ * Contains values for trailer entity.
+ * --
  * Created by Admin on 02.02.2016.
  */
 public class Trailer {
@@ -10,6 +11,7 @@ public class Trailer {
     private String trailerKey;
     private int movieTmdbId;
 
+    @SuppressWarnings("unused")
     public int getMovieTmdbId() {
         return movieTmdbId;
     }
