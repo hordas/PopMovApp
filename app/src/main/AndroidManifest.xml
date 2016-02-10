@@ -42,6 +42,10 @@
                 android:name="android.accounts.AccountAuthenticator"
                 android:resource="@xml/authenticator"/>
         </service>
+        <provider
+            android:authorities="com.dyomin.udatraining.popmovapp.provider"
+            android:name=".provider.PMAProvider"
+            android:exported="false"/>
     </application>
 
 </manifest>

@@ -1,26 +1,39 @@
 package com.dyomin.udatraining.popmovapp;
 
+import android.content.ContentValues;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.ToggleButton;
 import com.dyomin.udatraining.popmovapp.data.poster.MovieDetails;
 import com.dyomin.udatraining.popmovapp.data.review.Review;
 import com.dyomin.udatraining.popmovapp.data.trailer.Trailer;
+import com.dyomin.udatraining.popmovapp.provider.movie.MovieColumns;
+import com.dyomin.udatraining.popmovapp.provider.movie.MovieContentValues;
+import com.dyomin.udatraining.popmovapp.provider.movie.MovieCursor;
+import com.dyomin.udatraining.popmovapp.provider.movie.MovieSelection;
+import com.dyomin.udatraining.popmovapp.provider.review.ReviewColumns;
+import com.dyomin.udatraining.popmovapp.provider.review.ReviewContentValues;
+import com.dyomin.udatraining.popmovapp.provider.video.VideoColumns;
+import com.dyomin.udatraining.popmovapp.provider.video.VideoContentValues;
 import com.dyomin.udatraining.popmovapp.util.Connection;
 import com.dyomin.udatraining.popmovapp.util.JsonParser;
 import com.squareup.picasso.Picasso;
 import java.util.List;
+import java.util.Vector;
 
 /**
  * Contains information about selected movie.
@@ -38,6 +51,13 @@ public class DetailsFragment extends Fragment {
     private LinearLayout reviewsListView;
     private ProgressBar progressBarTrailers;
     private ProgressBar progressBarReviews;
+    private ToggleButton toggleFavorite;
+
+    //todo заглушка-инициализация.
+    private boolean favorite = false;
+    private MovieDetails movie;
+    private List<Trailer> trailers;
+    private List<Review> reviews;
 
     public DetailsFragment() {
     }
@@ -55,20 +75,22 @@ public class DetailsFragment extends Fragment {
         reviewsListView = (LinearLayout) v.findViewById(R.id.linearlayout_reviews);
         progressBarTrailers = (ProgressBar) v.findViewById(R.id.progressbar_trailers);
         progressBarReviews = (ProgressBar) v.findViewById(R.id.progressbar_reviews);
-        Bundle args = getArguments();
-        int movieId = args.getInt(MOVIE_TMDB_ID);
+        toggleFavorite = (ToggleButton) v.findViewById(R.id.button_starred);
+
+        movie = getMovieDataFromTheBundle(getArguments());
+        checkIsFavorite();
+
 
         Picasso.with(getActivity()).load(
-                        Connection.getImageUrl(args.getString(MOVIE_POSTER_URL))
+                        Connection.getImageUrl(movie.getPosterUrl())
                 ).into(posterView);
-                title.setText(args.getString(MOVIE_TITLE));
-                overview.setText(args.getString(MOVIE_OVERVIEW));
-                voteAverage.setText(args.getString(MOVIE_VOTE_AVERAGE));
-                releaseDate.setText(args.getString(MOVIE_RELEASE_DATE));
+        title.setText(movie.getTitle());
+        overview.setText(movie.getOverview());
+        voteAverage.setText(movie.getVoteAverage());
+        releaseDate.setText(movie.getReleaseDate());
 
-        String movieIdString = Integer.toString(movieId);
-        new TrailersUploader().execute(movieIdString);
-        new ReviewsUploader().execute(movieIdString);
+        obtainTrailersAndReviews();
+        toggleFavorite.setOnCheckedChangeListener(buttonFavoriteListener);
         return v;
     }
 
@@ -108,40 +130,18 @@ public class DetailsFragment extends Fragment {
         return intent;
     }
 
-    public class TrailersUploader extends AsyncTask<String, Void, String> {
-
-        protected void onPreExecute() {
-            progressBarTrailers.setVisibility(View.VISIBLE);
-        }
-
-        @Override
-        protected String doInBackground(String... movieIds) {
-            String movieId = movieIds[0];
-            return Connection.processRequest(Connection.getTrailersUrl(movieId));
-        }
-
-        @Override
-        protected void onPostExecute(String responseString) {
-            progressBarTrailers.setVisibility(View.INVISIBLE);
-            if (responseString != null) {
-                List<Trailer> trailers = JsonParser.parseTrailers(responseString);
-                if (trailers.size() > 0) {
-                    LayoutInflater inflater = LayoutInflater.from(getContext());
-                    for (int i = 0; i < trailers.size(); i++) {
-                        View trailerView = inflater.inflate(R.layout.trailer_item, null);
-                        TextView titleTextView = (TextView) trailerView.findViewById(R.id.textview_trailer_name);
-                        ImageButton imageButton = (ImageButton) trailerView.findViewById(R.id.imagebutton_play);
-                        imageButton.setOnClickListener(listener);
-                        imageButton.setTag(trailers.get(i).getTrailerKey());
-                        titleTextView.setText(trailers.get(i).getName());
-                        trailersListView.addView(trailerView);
-                    }
-                }
-            }
-        }
+    private static MovieDetails getMovieDataFromTheBundle(Bundle args) {
+        MovieDetails movieDetails = new MovieDetails();
+        movieDetails.setMovieId(args.getInt(MOVIE_TMDB_ID));
+        movieDetails.setTitle(args.getString(MOVIE_TITLE));
+        movieDetails.setOverview(args.getString(MOVIE_OVERVIEW));
+        movieDetails.setVoteAverage(args.getString(MOVIE_VOTE_AVERAGE));
+        movieDetails.setReleaseDate(args.getString(MOVIE_RELEASE_DATE));
+        movieDetails.setPosterUrl(args.getString(MOVIE_POSTER_URL));
+        return movieDetails;
     }
 
-    private View.OnClickListener listener = new View.OnClickListener() {
+    private View.OnClickListener buttonPlayListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
             String path = (String) v.getTag();
@@ -153,7 +153,135 @@ public class DetailsFragment extends Fragment {
         }
     };
 
-    public class ReviewsUploader extends AsyncTask<String, Void, String> {
+    private ToggleButton.OnCheckedChangeListener buttonFavoriteListener = new CompoundButton.OnCheckedChangeListener() {
+        @Override
+        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+            toggleFavorite.setEnabled(false);
+
+            if (isChecked) {
+                writeToDB();
+            } else {
+                removeFromDB();
+            }
+            favorite = isChecked;
+
+            toggleFavorite.setEnabled(true);
+        }
+    };
+
+    private void checkIsFavorite() {
+        int movieId = movie.getMovieId();
+        MovieSelection where = new MovieSelection();
+        MovieCursor mvCursor = where.tmdbId(movieId).query(getContext().getContentResolver());
+        if (mvCursor == null) {
+            favorite = false;
+        } else {
+            favorite = mvCursor.moveToFirst();
+        }
+        toggleFavorite.setChecked(favorite);
+    }
+
+    private void obtainTrailersAndReviews() {
+        String movieIdString = Integer.toString(movie.getMovieId());
+        new TrailersUploader().execute(movieIdString);
+        new ReviewsUploader().execute(movieIdString);
+    }
+
+    //todo
+    private void removeFromDB() {
+
+    }
+
+    private void writeToDB() {
+        MovieContentValues movieContentValues = new MovieContentValues();
+        movieContentValues.putTmdbId(movie.getMovieId())
+                .putOriginalTitle(movie.getTitle())
+                .putOverview(movie.getOverview())
+                .putVoteAverage(Float.parseFloat(movie.getVoteAverage()))
+                .putMovieReleaseDate(movie.getReleaseDate())
+                .putMoviePosterUri(movie.getPosterUrl());
+        Uri insertedRowUri = getContext().getContentResolver()
+                .insert(MovieColumns.CONTENT_URI, movieContentValues.values());
+
+
+        if (insertedRowUri != null && insertedRowUri.getLastPathSegment() != null) {
+                String idPath = insertedRowUri.getLastPathSegment();
+                Integer movieDatabaseID = Integer.parseInt(idPath);
+                writeTrailersToDB(movieDatabaseID);
+                writeReviewsToDB(movieDatabaseID);
+        } else {
+            Log.d(">>>> " + DetailsFragment.class.getSimpleName(),
+                    "Unable to write trailers and reviews to database!");
+        }
+
+    }
+
+    private void writeTrailersToDB(int movieDatabaseId) {
+        if (trailers != null && trailers.size() > 0) {
+            Vector<ContentValues> trailersVector = new Vector<>();
+            for (Trailer trailer : trailers) {
+                VideoContentValues videoCV = new VideoContentValues();
+                videoCV.putMovieId(movieDatabaseId)
+                        .putName(trailer.getName())
+                        .putTrailerKey(trailer.getTrailerKey());
+                trailersVector.add(videoCV.values());
+            }
+            ContentValues[] cvArray = new ContentValues[trailersVector.size()];
+            trailersVector.toArray(cvArray);
+            getContext().getContentResolver().bulkInsert(VideoColumns.CONTENT_URI, cvArray);
+        }
+    }
+
+    private void writeReviewsToDB(int movieDatabaseId) {
+        if (reviews != null && reviews.size() > 0) {
+            Vector<ContentValues> reviewsVector = new Vector<>();
+            for (Review review : reviews) {
+                ReviewContentValues reviewCV = new ReviewContentValues();
+                reviewCV.putMovieId(movieDatabaseId)
+                        .putAuthor(review.getAuthor())
+                        .putContent(review.getContent());
+                reviewsVector.add(reviewCV.values());
+            }
+            ContentValues[] cvArray = new ContentValues[reviewsVector.size()];
+            reviewsVector.toArray(cvArray);
+            getContext().getContentResolver().bulkInsert(ReviewColumns.CONTENT_URI, cvArray);
+        }
+    }
+
+    private class TrailersUploader extends AsyncTask<String, Void, String> {
+
+        protected void onPreExecute() {
+            progressBarTrailers.setVisibility(View.VISIBLE);
+        }
+
+        @Override
+        protected String doInBackground(String... movieIds) {
+            String movieId = movieIds[0];
+            return Connection.processRequest(Connection.getTrailersUrl(movieId));
+        }
+        @Override
+        protected void onPostExecute(String responseString) {
+            progressBarTrailers.setVisibility(View.INVISIBLE);
+            if (responseString != null) {
+                trailers = JsonParser.parseTrailers(responseString);
+                if (trailers.size() > 0) {
+                    LayoutInflater inflater = LayoutInflater.from(getContext());
+                    for (int i = 0; i < trailers.size(); i++) {
+                        View trailerView = inflater.inflate(R.layout.trailer_item, null);
+                        TextView titleTextView = (TextView) trailerView.findViewById(R.id.textview_trailer_name);
+                        ImageButton imageButton = (ImageButton) trailerView.findViewById(R.id.imagebutton_play);
+                        imageButton.setOnClickListener(buttonPlayListener);
+                        imageButton.setTag(trailers.get(i).getTrailerKey());
+                        titleTextView.setText(trailers.get(i).getName());
+                        trailersListView.addView(trailerView);
+                    }
+                }
+            }
+        }
+
+    }
+
+    private class ReviewsUploader extends AsyncTask<String, Void, String> {
 
         protected void onPreExecute() {
             progressBarReviews.setVisibility(View.VISIBLE);
@@ -169,7 +297,7 @@ public class DetailsFragment extends Fragment {
         protected void onPostExecute(String responseString) {
             progressBarReviews.setVisibility(View.INVISIBLE);
             if (responseString != null) {
-                List<Review> reviews = JsonParser.parseReviews(responseString);
+                reviews = JsonParser.parseReviews(responseString);
                 if (reviews.size() > 0) {
                     LayoutInflater inflater = LayoutInflater.from(getContext());
                     for (int i = 0; i < reviews.size(); i++) {
