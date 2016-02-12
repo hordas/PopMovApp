@@ -52,7 +52,6 @@ public class JsonParser {
         return movie;
     }
 
-    @SuppressWarnings("unused")
     public static List<Trailer> parseTrailers(String response) {
         List<Trailer> resultList = new ArrayList<>();
         try {
@@ -73,7 +72,6 @@ public class JsonParser {
         return resultList;
     }
 
-    @SuppressWarnings("unused")
     public static List<Review> parseReviews(String response) {
         List<Review> resultList = new ArrayList<>();
         try {

@@ -47,9 +47,6 @@ public class MainActivity extends ActionBarActivity implements MainActivityFragm
 
     @Override
     public void onItemSelected(MovieDetails movieDetails) {
-//        MovieSelection where = new MovieSelection();
-//        where.tmdbId(movieId);
-
         if (twoPane) {
             Bundle args = DetailsFragment.putDataIntoTheBundle(movieDetails);
             DetailsFragment fragment = new DetailsFragment();

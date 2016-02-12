@@ -53,8 +53,7 @@ public class DetailsFragment extends Fragment {
     private ProgressBar progressBarReviews;
     private ToggleButton toggleFavorite;
 
-    //todo заглушка-инициализация.
-    private boolean favorite = false;
+    private boolean favorite;
     private MovieDetails movie;
     private List<Trailer> trailers;
     private List<Review> reviews;
@@ -173,9 +172,8 @@ public class DetailsFragment extends Fragment {
         int movieId = movie.getMovieId();
         MovieSelection where = new MovieSelection();
         MovieCursor mvCursor = where.tmdbId(movieId).query(getContext().getContentResolver());
-        if (mvCursor == null) {
-            favorite = false;
-        } else {
+        favorite = false;
+        if (mvCursor != null) {
             favorite = mvCursor.moveToFirst();
         }
         toggleFavorite.setChecked(favorite);
@@ -259,6 +257,7 @@ public class DetailsFragment extends Fragment {
             String movieId = movieIds[0];
             return Connection.processRequest(Connection.getTrailersUrl(movieId));
         }
+
         @Override
         protected void onPostExecute(String responseString) {
             progressBarTrailers.setVisibility(View.INVISIBLE);
@@ -300,12 +299,12 @@ public class DetailsFragment extends Fragment {
                 reviews = JsonParser.parseReviews(responseString);
                 if (reviews.size() > 0) {
                     LayoutInflater inflater = LayoutInflater.from(getContext());
-                    for (int i = 0; i < reviews.size(); i++) {
+                    for (Review review : reviews) {
                         View reviewView = inflater.inflate(R.layout.review_item, null);
                         TextView author = (TextView) reviewView.findViewById(R.id.textview_author);
                         TextView content = (TextView) reviewView.findViewById(R.id.textview_content);
-                        author.setText(reviews.get(i).getAuthor());
-                        content.setText(reviews.get(i).getContent());
+                        author.setText(review.getAuthor());
+                        content.setText(review.getContent());
                         reviewsListView.addView(reviewView);
                     }
                 }
