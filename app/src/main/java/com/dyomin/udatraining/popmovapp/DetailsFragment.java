@@ -17,6 +17,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.ToggleButton;
 import com.dyomin.udatraining.popmovapp.data.poster.MovieDetails;
 import com.dyomin.udatraining.popmovapp.data.review.Review;
@@ -185,9 +186,15 @@ public class DetailsFragment extends Fragment {
         new ReviewsUploader().execute(movieIdString);
     }
 
-    //todo
     private void removeFromDB() {
+        Toast.makeText(getContext(), "Count of records before is: " + getCountOfMovies(), Toast.LENGTH_LONG).show();
+        MovieSelection where = new MovieSelection();
+        where.tmdbId(movie.getMovieId()).delete(getContext().getContentResolver());
+        Toast.makeText(getContext(), "Count of records after is: " + getCountOfMovies(), Toast.LENGTH_LONG).show();
+    }
 
+    private int getCountOfMovies() {
+        return new MovieSelection().query(getContext().getContentResolver()).getCount();
     }
 
     private void writeToDB() {
