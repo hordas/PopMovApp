@@ -90,24 +90,25 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
-        <View
-            android:id="@+id/horizontal_line"
-            android:layout_width="match_parent"
-            android:layout_below="@+id/textview_movie_synopsis"
-            android:layout_margin="10dp"
-            android:layout_height="1dp"
-            android:background="@color/teal_700"/>
 
         <RelativeLayout
             android:id="@+id/trailers_layout"
-            android:layout_below="@+id/horizontal_line"
+            android:layout_below="@+id/textview_movie_synopsis"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
+
+            <View
+                android:id="@+id/horizontal_line"
+                android:layout_width="match_parent"
+                android:layout_margin="10dp"
+                android:layout_height="1dp"
+                android:background="@color/teal_700"/>
 
             <TextView
                 android:id="@+id/textview_label_trailers"
                 android:textSize="16sp"
                 android:text="@string/trailers_label"
+                android:layout_below="@+id/horizontal_line"
                 android:layout_margin="20dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
@@ -131,24 +132,24 @@
 
         </RelativeLayout>
 
-        <View
-            android:id="@+id/horizontal_line_2"
-            android:layout_width="match_parent"
-            android:layout_below="@+id/trailers_layout"
-            android:layout_margin="10dp"
-            android:layout_height="1dp"
-            android:background="@color/teal_700"/>
-
         <RelativeLayout
             android:id="@+id/reviews_layout"
-            android:layout_below="@+id/horizontal_line_2"
+            android:layout_below="@+id/trailers_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
+
+            <View
+                android:id="@+id/horizontal_line_2"
+                android:layout_width="match_parent"
+                android:layout_margin="10dp"
+                android:layout_height="1dp"
+                android:background="@color/teal_700"/>
 
             <TextView
                 android:id="@+id/textview_label_reviews"
                 android:textSize="16sp"
                 android:text="@string/reviews_label"
+                android:layout_below="@+id/horizontal_line_2"
                 android:layout_margin="20dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />

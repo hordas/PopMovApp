@@ -1,6 +1,7 @@
 package com.dyomin.udatraining.popmovapp;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -16,6 +17,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
@@ -53,6 +55,8 @@ public class DetailsFragment extends Fragment {
     private ProgressBar progressBarTrailers;
     private ProgressBar progressBarReviews;
     private ToggleButton toggleFavorite;
+    private RelativeLayout trailersLayout;
+    private RelativeLayout reviewsLayout;
 
     private boolean favorite;
     private MovieDetails movie;
@@ -76,8 +80,11 @@ public class DetailsFragment extends Fragment {
         progressBarTrailers = (ProgressBar) v.findViewById(R.id.progressbar_trailers);
         progressBarReviews = (ProgressBar) v.findViewById(R.id.progressbar_reviews);
         toggleFavorite = (ToggleButton) v.findViewById(R.id.button_starred);
+        trailersLayout = (RelativeLayout) v.findViewById(R.id.trailers_layout);
+        reviewsLayout = (RelativeLayout) v.findViewById(R.id.reviews_layout);
 
-        movie = getMovieDataFromTheBundle(getArguments());
+        Bundle args = getArguments();
+        movie = getMovieDataFromTheBundle(args);
         checkIsFavorite();
 
 
@@ -89,7 +96,7 @@ public class DetailsFragment extends Fragment {
         voteAverage.setText(movie.getVoteAverage());
         releaseDate.setText(movie.getReleaseDate());
 
-        obtainTrailersAndReviews();
+        obtainTrailersAndReviews(getActivity());
         toggleFavorite.setOnCheckedChangeListener(buttonFavoriteListener);
         return v;
     }
@@ -180,10 +187,10 @@ public class DetailsFragment extends Fragment {
         toggleFavorite.setChecked(favorite);
     }
 
-    private void obtainTrailersAndReviews() {
+    private void obtainTrailersAndReviews(Context context) {
         String movieIdString = Integer.toString(movie.getMovieId());
-        new TrailersUploader().execute(movieIdString);
-        new ReviewsUploader().execute(movieIdString);
+        new TrailersUploader(context).execute(movieIdString);
+        new ReviewsUploader(context).execute(movieIdString);
     }
 
     private void removeFromDB() {
@@ -253,7 +260,13 @@ public class DetailsFragment extends Fragment {
         }
     }
 
-    private class TrailersUploader extends AsyncTask<String, Void, String> {
+    class TrailersUploader extends AsyncTask<String, Void, String> {
+
+        private Context context;
+
+        public TrailersUploader(Context context) {
+            this.context = context;
+        }
 
         protected void onPreExecute() {
             progressBarTrailers.setVisibility(View.VISIBLE);
@@ -271,7 +284,7 @@ public class DetailsFragment extends Fragment {
             if (responseString != null) {
                 trailers = JsonParser.parseTrailers(responseString);
                 if (trailers.size() > 0) {
-                    LayoutInflater inflater = LayoutInflater.from(getContext());
+                    LayoutInflater inflater = LayoutInflater.from(context);
                     for (int i = 0; i < trailers.size(); i++) {
                         View trailerView = inflater.inflate(R.layout.trailer_item, null);
                         TextView titleTextView = (TextView) trailerView.findViewById(R.id.textview_trailer_name);
@@ -281,13 +294,22 @@ public class DetailsFragment extends Fragment {
                         titleTextView.setText(trailers.get(i).getName());
                         trailersListView.addView(trailerView);
                     }
+                    trailersLayout.setVisibility(View.VISIBLE);
+                } else {
+                    trailersLayout.setVisibility(View.GONE);
                 }
             }
         }
 
     }
 
-    private class ReviewsUploader extends AsyncTask<String, Void, String> {
+    class ReviewsUploader extends AsyncTask<String, Void, String> {
+
+        private Context context;
+
+        public ReviewsUploader(Context context) {
+            this.context = context;
+        }
 
         protected void onPreExecute() {
             progressBarReviews.setVisibility(View.VISIBLE);
@@ -305,7 +327,7 @@ public class DetailsFragment extends Fragment {
             if (responseString != null) {
                 reviews = JsonParser.parseReviews(responseString);
                 if (reviews.size() > 0) {
-                    LayoutInflater inflater = LayoutInflater.from(getContext());
+                    LayoutInflater inflater = LayoutInflater.from(context);
                     for (Review review : reviews) {
                         View reviewView = inflater.inflate(R.layout.review_item, null);
                         TextView author = (TextView) reviewView.findViewById(R.id.textview_author);
@@ -314,6 +336,9 @@ public class DetailsFragment extends Fragment {
                         content.setText(review.getContent());
                         reviewsListView.addView(reviewView);
                     }
+                    reviewsLayout.setVisibility(View.VISIBLE);
+                } else {
+                    reviewsLayout.setVisibility(View.GONE);
                 }
             }
         }
