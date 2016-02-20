@@ -19,14 +19,21 @@ import android.widget.TextView;
 import com.dyomin.udatraining.popmovapp.data.poster.MovieDetails;
 import com.dyomin.udatraining.popmovapp.data.poster.PosterAdapter;
 import com.dyomin.udatraining.popmovapp.data.poster.PosterBatch;
+import com.dyomin.udatraining.popmovapp.provider.movie.MovieCursor;
+import com.dyomin.udatraining.popmovapp.provider.movie.MovieSelection;
 import com.dyomin.udatraining.popmovapp.util.Connection;
 import com.dyomin.udatraining.popmovapp.util.JsonParser;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A placeholder fragment containing a simple view.
  */
 
 public class MainActivityFragment extends Fragment {
+
+    private static final int MOVIES_PER_PAGE = 20;
 
     private PosterAdapter posterAdapter;
     private GridView gv;
@@ -74,8 +81,10 @@ public class MainActivityFragment extends Fragment {
     }
 
     private void stopTaskIfRunning() {
-        if (postersUploader.getStatus().equals(AsyncTask.Status.RUNNING)) {
-            postersUploader.cancel(true);
+        if (postersUploader != null) {
+            if (postersUploader.getStatus().equals(AsyncTask.Status.RUNNING)) {
+                postersUploader.cancel(true);
+            }
         }
     }
 
@@ -97,23 +106,25 @@ public class MainActivityFragment extends Fragment {
                 callback.onItemSelected((MovieDetails) posterAdapter.getItem(position));
             }
         });
+        //todo - add handling for "favorite" case
         buttonLeft.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (currentPage != 1) {
                     stopTaskIfRunning();
-                    String url = Connection.getCertainPageUrl(getSortOrder(),
+                    String url = Connection.getCertainPageUrl(getSelectionPreference(),
                             (currentPage - 1));
                     updateResults(url);
                 }
             }
         });
+        //todo - add handling for "favorite" case
         buttonRight.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (currentPage != totalPages) {
                     stopTaskIfRunning();
-                    String url = Connection.getCertainPageUrl(getSortOrder(),
+                    String url = Connection.getCertainPageUrl(getSelectionPreference(),
                             (currentPage + 1));
                     updateResults(url);
                 }
@@ -129,10 +140,40 @@ public class MainActivityFragment extends Fragment {
     }
 
     private void updateResults() {
-        updateResults(Connection.getMoviesUrl(getSortOrder()));
+        String selectionPreference = getSelectionPreference();
+        if (!selectionPreference.equals(getString(R.string.movies_sort_favorites))) {
+            updateResults(Connection.getMoviesUrl(selectionPreference));
+        } else {
+            MovieSelection where = new MovieSelection();
+            MovieCursor cursor = where.query(getContext().getContentResolver());
+            if (cursor != null && cursor.getCount() > 0) {
+                int totalRecords = cursor.getCount();
+                totalPages = totalRecords / MOVIES_PER_PAGE;
+                if (totalPages % MOVIES_PER_PAGE > 0) {
+                    totalPages += 1;
+                }
+                currentPage = 0;
+                PosterBatch batch = new PosterBatch();
+                List<MovieDetails> moviesList = new ArrayList<>();
+                for (int i = 0; i < MOVIES_PER_PAGE && cursor.moveToNext(); i++) {
+                    MovieDetails details = new MovieDetails();
+                    details.setMovieId(cursor.getTmdbId());
+                    details.setTitle(cursor.getOriginalTitle());
+                    details.setOverview(cursor.getOverview());
+                    details.setReleaseDate(cursor.getMovieReleaseDate());
+                    details.setVoteAverage(Float.toString(cursor.getVoteAverage()));
+                    details.setPosterUrl(cursor.getMoviePosterUri());
+                    moviesList.add(details);
+                }
+                batch.setCurrentPage(currentPage);
+                batch.setTotalPages(totalPages);
+                batch.setMovieDetailses(moviesList);
+                setBatchResults(batch);
+            }
+        }
     }
 
-    private String getSortOrder() {
+    private String getSelectionPreference() {
         return PreferenceManager.getDefaultSharedPreferences(getActivity())
                 .getString(getString(R.string.pref_key_popular_movies_sort_order),
                         getString(R.string.movies_sort_order_default));
