@@ -53,6 +53,9 @@ public class MainActivityFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+        if (savedInstanceState == null) {
+            currentPage = 1;
+        }
     }
 
     @Override
@@ -111,10 +114,16 @@ public class MainActivityFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 if (currentPage != 1) {
-                    stopTaskIfRunning();
-                    String url = Connection.getCertainPageUrl(getSelectionPreference(),
-                            (currentPage - 1));
-                    updateResults(url);
+                    String selectionPreference = getSelectionPreference();
+                    if (!selectionPreference.equals(getString(R.string.movies_sort_favorites))) {
+                        stopTaskIfRunning();
+                        String url = Connection.getCertainPageUrl(getSelectionPreference(),
+                                (currentPage - 1));
+                        updateResults(url);
+                    } else {
+                        currentPage--;
+                        processFavoriteOption();
+                    }
                 }
             }
         });
@@ -123,10 +132,16 @@ public class MainActivityFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 if (currentPage != totalPages) {
-                    stopTaskIfRunning();
-                    String url = Connection.getCertainPageUrl(getSelectionPreference(),
-                            (currentPage + 1));
-                    updateResults(url);
+                    String selectionPreference = getSelectionPreference();
+                    if (!selectionPreference.equals(getString(R.string.movies_sort_favorites))) {
+                        stopTaskIfRunning();
+                        String url = Connection.getCertainPageUrl(getSelectionPreference(),
+                                (currentPage + 1));
+                        updateResults(url);
+                    } else {
+                        currentPage++;
+                        processFavoriteOption();
+                    }
                 }
             }
         });
@@ -144,32 +159,38 @@ public class MainActivityFragment extends Fragment {
         if (!selectionPreference.equals(getString(R.string.movies_sort_favorites))) {
             updateResults(Connection.getMoviesUrl(selectionPreference));
         } else {
-            MovieSelection where = new MovieSelection();
-            MovieCursor cursor = where.query(getContext().getContentResolver());
-            if (cursor != null && cursor.getCount() > 0) {
-                int totalRecords = cursor.getCount();
-                totalPages = totalRecords / MOVIES_PER_PAGE;
-                if (totalPages % MOVIES_PER_PAGE > 0) {
-                    totalPages += 1;
-                }
-                currentPage = 0;
-                PosterBatch batch = new PosterBatch();
-                List<MovieDetails> moviesList = new ArrayList<>();
-                for (int i = 0; i < MOVIES_PER_PAGE && cursor.moveToNext(); i++) {
-                    MovieDetails details = new MovieDetails();
-                    details.setMovieId(cursor.getTmdbId());
-                    details.setTitle(cursor.getOriginalTitle());
-                    details.setOverview(cursor.getOverview());
-                    details.setReleaseDate(cursor.getMovieReleaseDate());
-                    details.setVoteAverage(Float.toString(cursor.getVoteAverage()));
-                    details.setPosterUrl(cursor.getMoviePosterUri());
-                    moviesList.add(details);
-                }
-                batch.setCurrentPage(currentPage);
-                batch.setTotalPages(totalPages);
-                batch.setMovieDetailses(moviesList);
-                setBatchResults(batch);
+            processFavoriteOption();
+        }
+    }
+
+    private void processFavoriteOption() {
+        MovieSelection where = new MovieSelection();
+        MovieCursor cursor = where.query(getContext().getContentResolver());
+        if (cursor != null && cursor.getCount() > 0) {
+            int totalRecords = cursor.getCount();
+            totalPages = totalRecords / MOVIES_PER_PAGE;
+            if (totalPages % MOVIES_PER_PAGE > 0) {
+                totalPages += 1;
             }
+//            currentPage = 1;
+            PosterBatch batch = new PosterBatch();
+            List<MovieDetails> moviesList = new ArrayList<>();
+            int currentShift = (currentPage - 1) * MOVIES_PER_PAGE;
+            cursor.moveToPosition(currentShift - 1);
+            for (int i = currentShift; i < currentShift + MOVIES_PER_PAGE && cursor.moveToNext(); i++) {
+                MovieDetails details = new MovieDetails();
+                details.setMovieId(cursor.getTmdbId());
+                details.setTitle(cursor.getOriginalTitle());
+                details.setOverview(cursor.getOverview());
+                details.setReleaseDate(cursor.getMovieReleaseDate());
+                details.setVoteAverage(Float.toString(cursor.getVoteAverage()));
+                details.setPosterUrl(cursor.getMoviePosterUri());
+                moviesList.add(details);
+            }
+            batch.setCurrentPage(currentPage);
+            batch.setTotalPages(totalPages);
+            batch.setMovieDetailses(moviesList);
+            setBatchResults(batch);
         }
     }
 
@@ -184,8 +205,7 @@ public class MainActivityFragment extends Fragment {
         private final String LOG_TAG = PostersUploader.class.getSimpleName();
 
         protected void onPreExecute() {
-            textViewCurrentPage.setVisibility(View.INVISIBLE);
-            progressBarPosters.setVisibility(View.VISIBLE);
+            setPageNavigatorLoading(true);
         }
 
         @Override
@@ -196,13 +216,22 @@ public class MainActivityFragment extends Fragment {
 
         @Override
         protected void onPostExecute(PosterBatch posterBatch) {
-            progressBarPosters.setVisibility(View.INVISIBLE);
-            textViewCurrentPage.setVisibility(View.VISIBLE);
+            setPageNavigatorLoading(false);
             if (posterBatch == null) {
                 throw new RuntimeException(LOG_TAG + "PosterBatch == null.");
             }
             setBatchResults(posterBatch);
         }
+    }
+
+    private void setPageNavigatorLoading(boolean loading) {
+        int preLoaderMode = loading ? View.VISIBLE : View.INVISIBLE;
+        int paginatorMode = loading ? View.INVISIBLE : View.VISIBLE;
+
+        progressBarPosters.setVisibility(preLoaderMode);
+        textViewCurrentPage.setVisibility(paginatorMode);
+        buttonLeft.setVisibility(paginatorMode);
+        buttonRight.setVisibility(paginatorMode);
     }
 
     private void setBatchResults(PosterBatch batch) {
