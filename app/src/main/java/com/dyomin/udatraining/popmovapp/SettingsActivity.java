@@ -1,5 +1,6 @@
 package com.dyomin.udatraining.popmovapp;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
@@ -66,6 +67,10 @@ public class SettingsActivity extends PreferenceActivity {
                 // simple string representation.
                 preference.setSummary(stringValue);
             }
+            Context prefContext = preference.getContext();
+            PreferenceManager.getDefaultSharedPreferences(prefContext)
+                    .edit().putInt(prefContext.getString(R.string.current_page_preference), 1)
+                    .commit();
             return true;
         }
     };

@@ -15,7 +15,10 @@
     <string name="trailer_stub_name">Some trailer</string>
     <string name="button_play_content_description">Play trailer button</string>
 
-    <!-- toogle button state names -->
+    <!-- preferences -->
+    <string name="current_page_preference">current_page</string>
+
+    <!-- toggle button state names -->
     <string name="toggle_unchecked">Mark as \nfavorite</string>
     <string name="toggle_checked">Remove from \nfavorites</string>
     

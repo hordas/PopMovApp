@@ -44,7 +44,8 @@ public class MainActivityFragment extends Fragment {
     private ProgressBar progressBarPosters;
 
     private int totalPages;
-    private int currentPage;
+    private int currentPageIndex;
+    private int newPageIndex;
 
     public MainActivityFragment() {
     }
@@ -53,15 +54,20 @@ public class MainActivityFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
-        if (savedInstanceState == null) {
-            currentPage = 1;
-        }
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        updateResults();
+        initMoviesGrid();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        PreferenceManager.getDefaultSharedPreferences(getActivity())
+                .edit().putInt(getString(R.string.current_page_preference), currentPageIndex)
+                .commit();
     }
 
     @Override
@@ -100,7 +106,7 @@ public class MainActivityFragment extends Fragment {
         buttonRight = (TextView) v.findViewById(R.id.textview_right_arrow);
         textViewCurrentPage = (TextView) v.findViewById(R.id.textview_current_page);
         progressBarPosters = (ProgressBar) v.findViewById(R.id.progressbar_posters);
-        updateResults();
+
         gv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -109,73 +115,67 @@ public class MainActivityFragment extends Fragment {
                 callback.onItemSelected((MovieDetails) posterAdapter.getItem(position));
             }
         });
-        //todo - add handling for "favorite" case
+
         buttonLeft.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (currentPage != 1) {
-                    String selectionPreference = getSelectionPreference();
-                    if (!selectionPreference.equals(getString(R.string.movies_sort_favorites))) {
-                        stopTaskIfRunning();
-                        String url = Connection.getCertainPageUrl(getSelectionPreference(),
-                                (currentPage - 1));
-                        updateResults(url);
-                    } else {
-                        currentPage--;
-                        processFavoriteOption();
-                    }
-                }
+                newPageIndex = currentPageIndex - 1;
+                processPageNavigation(1);
             }
         });
-        //todo - add handling for "favorite" case
+
         buttonRight.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (currentPage != totalPages) {
-                    String selectionPreference = getSelectionPreference();
-                    if (!selectionPreference.equals(getString(R.string.movies_sort_favorites))) {
-                        stopTaskIfRunning();
-                        String url = Connection.getCertainPageUrl(getSelectionPreference(),
-                                (currentPage + 1));
-                        updateResults(url);
-                    } else {
-                        currentPage++;
-                        processFavoriteOption();
-                    }
-                }
+                newPageIndex = currentPageIndex + 1;
+                processPageNavigation(totalPages);
             }
         });
 
         return v;
     }
 
-    private void updateResults(String url) {
+    private void processPageNavigation(int boundaryPageIndex) {
+        if (currentPageIndex != boundaryPageIndex) {
+            showMovies();
+        }
+    }
+
+    private void initMoviesGrid() {
+        currentPageIndex = PreferenceManager.getDefaultSharedPreferences(getContext())
+                .getInt(getString(R.string.current_page_preference), 1);
+        newPageIndex = currentPageIndex;
+        showMovies();
+    }
+
+    private void showMovies() {
+        String selectionPreference = getSelectionPreference();
+        if (!selectionPreference.equals(getString(R.string.movies_sort_favorites))) {
+            stopTaskIfRunning();
+            String url = Connection.getCertainPageUrl(getSelectionPreference(), newPageIndex);
+            downloadPosters(url);
+        } else {
+            loadFavoriteBatch();
+        }
+    }
+
+    private void downloadPosters(String url) {
         postersUploader = new PostersUploader();
         postersUploader.execute(url);
     }
 
-    private void updateResults() {
-        String selectionPreference = getSelectionPreference();
-        if (!selectionPreference.equals(getString(R.string.movies_sort_favorites))) {
-            updateResults(Connection.getMoviesUrl(selectionPreference));
-        } else {
-            processFavoriteOption();
-        }
-    }
-
-    private void processFavoriteOption() {
+    private void loadFavoriteBatch() {
         MovieSelection where = new MovieSelection();
         MovieCursor cursor = where.query(getContext().getContentResolver());
         if (cursor != null && cursor.getCount() > 0) {
             int totalRecords = cursor.getCount();
             totalPages = totalRecords / MOVIES_PER_PAGE;
-            if (totalPages % MOVIES_PER_PAGE > 0) {
+            if (totalRecords % MOVIES_PER_PAGE > 0) {
                 totalPages += 1;
             }
-//            currentPage = 1;
             PosterBatch batch = new PosterBatch();
             List<MovieDetails> moviesList = new ArrayList<>();
-            int currentShift = (currentPage - 1) * MOVIES_PER_PAGE;
+            int currentShift = (newPageIndex - 1) * MOVIES_PER_PAGE;
             cursor.moveToPosition(currentShift - 1);
             for (int i = currentShift; i < currentShift + MOVIES_PER_PAGE && cursor.moveToNext(); i++) {
                 MovieDetails details = new MovieDetails();
@@ -187,7 +187,7 @@ public class MainActivityFragment extends Fragment {
                 details.setPosterUrl(cursor.getMoviePosterUri());
                 moviesList.add(details);
             }
-            batch.setCurrentPage(currentPage);
+            batch.setCurrentPage(newPageIndex);
             batch.setTotalPages(totalPages);
             batch.setMovieDetailses(moviesList);
             setBatchResults(batch);
@@ -241,7 +241,7 @@ public class MainActivityFragment extends Fragment {
             posterAdapter = new PosterAdapter(getActivity(), batch.getMovieDetailses());
             gv.setAdapter(posterAdapter);
         }
-        setPages(batch);
+        updatePageNavigatorUI(batch);
         sendBootIntent(batch.getMovieDetailses().get(0));
     }
 
@@ -251,16 +251,16 @@ public class MainActivityFragment extends Fragment {
         LocalBroadcastManager.getInstance(getContext()).sendBroadcast(bootIntent);
     }
 
-    private void setPages(PosterBatch batch) {
-        currentPage = batch.getCurrentPage();
+    private void updatePageNavigatorUI(PosterBatch batch) {
+        currentPageIndex = batch.getCurrentPage();
         totalPages = batch.getTotalPages();
-        textViewCurrentPage.setText(Integer.toString(currentPage));
+        textViewCurrentPage.setText(Integer.toString(currentPageIndex));
         updateLeftButton();
         updateRightButton();
     }
 
     private void updateLeftButton() {
-        if (currentPage == 1) {
+        if (currentPageIndex == 1) {
             buttonLeft.setVisibility(View.INVISIBLE);
         } else {
             buttonLeft.setVisibility(View.VISIBLE);
@@ -268,7 +268,7 @@ public class MainActivityFragment extends Fragment {
     }
 
     private void updateRightButton() {
-        if (currentPage == totalPages) {
+        if (currentPageIndex == totalPages) {
             buttonRight.setVisibility(View.INVISIBLE);
         } else {
             buttonRight.setVisibility(View.VISIBLE);
