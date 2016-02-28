@@ -1,6 +1,9 @@
 package com.dyomin.udatraining.popmovapp;
 
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -14,8 +17,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
+import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 import com.dyomin.udatraining.popmovapp.data.poster.MovieDetails;
 import com.dyomin.udatraining.popmovapp.data.poster.PosterAdapter;
 import com.dyomin.udatraining.popmovapp.data.poster.PosterBatch;
@@ -23,7 +28,6 @@ import com.dyomin.udatraining.popmovapp.provider.movie.MovieCursor;
 import com.dyomin.udatraining.popmovapp.provider.movie.MovieSelection;
 import com.dyomin.udatraining.popmovapp.util.Connection;
 import com.dyomin.udatraining.popmovapp.util.JsonParser;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,6 +50,9 @@ public class MainActivityFragment extends Fragment {
     private int totalPages;
     private int currentPageIndex;
     private int newPageIndex;
+    private int selecetedMovieIndex;
+
+    private static final String SELECTED_MOVIE_KEY = "selected_movie_key";
 
     public MainActivityFragment() {
     }
@@ -60,6 +67,14 @@ public class MainActivityFragment extends Fragment {
     public void onResume() {
         super.onResume();
         initMoviesGrid();
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        if (selecetedMovieIndex != ListView.INVALID_POSITION) {
+            outState.putInt(SELECTED_MOVIE_KEY, selecetedMovieIndex);
+        }
+        super.onSaveInstanceState(outState);
     }
 
     @Override
@@ -111,6 +126,7 @@ public class MainActivityFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Callback callback = (Callback) getActivity();
+                selecetedMovieIndex = position;
                 stopTaskIfRunning();
                 callback.onItemSelected((MovieDetails) posterAdapter.getItem(position));
             }
@@ -132,11 +148,18 @@ public class MainActivityFragment extends Fragment {
             }
         });
 
+        if (savedInstanceState != null) {
+            selecetedMovieIndex = savedInstanceState.getInt(SELECTED_MOVIE_KEY);
+        } else {
+            selecetedMovieIndex = 0;
+        }
+
         return v;
     }
 
     private void processPageNavigation(int boundaryPageIndex) {
         if (currentPageIndex != boundaryPageIndex) {
+            selecetedMovieIndex = 0;
             showMovies();
         }
     }
@@ -151,17 +174,29 @@ public class MainActivityFragment extends Fragment {
     private void showMovies() {
         String selectionPreference = getSelectionPreference();
         if (!selectionPreference.equals(getString(R.string.movies_sort_favorites))) {
-            stopTaskIfRunning();
-            String url = Connection.getCertainPageUrl(getSelectionPreference(), newPageIndex);
-            downloadPosters(url);
+            tryToDownloadPosters();
         } else {
             loadFavoriteBatch();
         }
     }
 
-    private void downloadPosters(String url) {
-        postersUploader = new PostersUploader();
-        postersUploader.execute(url);
+    private void tryToDownloadPosters() {
+        stopTaskIfRunning();
+        if (isNetworkAvailable()) {
+            String url = Connection.getCertainPageUrl(getSelectionPreference(), newPageIndex);
+            postersUploader = new PostersUploader();
+            postersUploader.execute(url);
+        } else {
+            Toast.makeText(getContext(), "There is no internet connection.", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    private boolean isNetworkAvailable() {
+        ConnectivityManager cm =
+                (ConnectivityManager) getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        return activeNetwork != null && activeNetwork.isConnected();
     }
 
     private void loadFavoriteBatch() {
@@ -242,7 +277,7 @@ public class MainActivityFragment extends Fragment {
             gv.setAdapter(posterAdapter);
         }
         updatePageNavigatorUI(batch);
-        sendBootIntent(batch.getMovieDetailses().get(0));
+        sendBootIntent(batch.getMovieDetailses().get(selecetedMovieIndex));
     }
 
     private void sendBootIntent(MovieDetails movieDetails) {
