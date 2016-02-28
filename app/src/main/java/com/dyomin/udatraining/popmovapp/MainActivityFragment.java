@@ -17,7 +17,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
-import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -51,8 +50,6 @@ public class MainActivityFragment extends Fragment {
     private int currentPageIndex;
     private int newPageIndex;
     private int selectedMovieIndex;
-
-    private static final String SELECTED_MOVIE_KEY = "selected_movie_key";
 
     public MainActivityFragment() {
     }
@@ -98,14 +95,6 @@ public class MainActivityFragment extends Fragment {
         }
     }
 
-    private void stopTaskIfRunning() {
-        if (postersUploader != null) {
-            if (postersUploader.getStatus().equals(AsyncTask.Status.RUNNING)) {
-                postersUploader.cancel(true);
-            }
-        }
-    }
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -142,13 +131,20 @@ public class MainActivityFragment extends Fragment {
             }
         });
 
-//        if (savedInstanceState != null) {
-//            selectedMovieIndex = savedInstanceState.getInt(SELECTED_MOVIE_KEY);
-//        } else {
-//            selectedMovieIndex = 0;
-//        }
-
         return v;
+    }
+
+    public void refreshMoviesAfterRemoving() {
+        selectedMovieIndex = 0;
+        showMovies();
+    }
+
+    private void stopTaskIfRunning() {
+        if (postersUploader != null) {
+            if (postersUploader.getStatus().equals(AsyncTask.Status.RUNNING)) {
+                postersUploader.cancel(true);
+            }
+        }
     }
 
     private void processPageNavigation(int boundaryPageIndex) {
@@ -204,6 +200,10 @@ public class MainActivityFragment extends Fragment {
             if (totalRecords % MOVIES_PER_PAGE > 0) {
                 totalPages += 1;
             }
+            if (currentPageIndex > totalPages) {
+                currentPageIndex = totalPages;
+                newPageIndex = currentPageIndex;
+            }
             PosterBatch batch = new PosterBatch();
             List<MovieDetails> moviesList = new ArrayList<>();
             int currentShift = (newPageIndex - 1) * MOVIES_PER_PAGE;
@@ -225,6 +225,12 @@ public class MainActivityFragment extends Fragment {
                 selectedMovieIndex = 0;
             }
             setBatchResults(batch);
+        } else {
+            PosterBatch emptyBatch = new PosterBatch();
+            emptyBatch.setCurrentPage(1);
+            emptyBatch.setTotalPages(1);
+            emptyBatch.setMovieDetailses(new ArrayList<MovieDetails>());
+            setBatchResults(emptyBatch);
         }
     }
 
@@ -287,12 +293,17 @@ public class MainActivityFragment extends Fragment {
             gv.setAdapter(posterAdapter);
         }
         updatePageNavigatorUI(batch);
-        sendBootIntent(batch.getMovieDetailses().get(selectedMovieIndex));
+        sendBootIntent(batch);
     }
 
-    private void sendBootIntent(MovieDetails movieDetails) {
+    private void sendBootIntent(PosterBatch batch) {
         Intent bootIntent = new Intent(MainActivity.TMDB_RESULTS_UPDATED);
-        bootIntent = DetailsFragment.puDataIntoIntent(bootIntent, movieDetails);
+
+        if (batch.getMovieDetailses().size() != 0) {
+            MovieDetails movieDetails = batch.getMovieDetailses().get(selectedMovieIndex);
+            bootIntent = DetailsFragment.puDataIntoIntent(bootIntent, movieDetails);
+        }
+
         LocalBroadcastManager.getInstance(getContext()).sendBroadcast(bootIntent);
     }
 

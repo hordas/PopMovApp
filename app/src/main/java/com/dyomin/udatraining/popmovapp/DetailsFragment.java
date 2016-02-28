@@ -7,6 +7,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
+import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -188,13 +189,32 @@ public class DetailsFragment extends Fragment {
 
     private void obtainTrailersAndReviews(Context context) {
         String movieIdString = Integer.toString(movie.getMovieId());
-        new TrailersUploader(context).execute(movieIdString);
-        new ReviewsUploader(context).execute(movieIdString);
+        if (!favorite) {
+            new TrailersUploader(context).execute(movieIdString);
+            new ReviewsUploader(context).execute(movieIdString);
+        } else {
+            readTrailersFromDB();
+            readReviewsFromDB();
+        }
+    }
+
+    private void readTrailersFromDB() {
+
+    }
+
+    private void readReviewsFromDB() {
+
     }
 
     private void removeFromDB() {
         MovieSelection where = new MovieSelection();
         where.tmdbId(movie.getMovieId()).delete(getContext().getContentResolver());
+        sendRemovingIntent();
+    }
+
+    private void sendRemovingIntent() {
+        Intent removingIntent = new Intent(MainActivity.TMDB_MOVIE_REMOVED);
+        LocalBroadcastManager.getInstance(getContext()).sendBroadcast(removingIntent);
     }
 
     private void writeToDB() {
