@@ -336,7 +336,7 @@ public class DetailsFragment extends Fragment {
         if (trailers.size() > 0) {
             LayoutInflater inflater = LayoutInflater.from(getContext());
             for (int i = 0; i < trailers.size(); i++) {
-                View trailerView = inflater.inflate(R.layout.trailer_item, trailersListView);
+                View trailerView = inflater.inflate(R.layout.trailer_item, null);
                 TextView titleTextView = (TextView) trailerView.findViewById(R.id.textview_trailer_name);
                 ImageButton imageButton = (ImageButton) trailerView.findViewById(R.id.imagebutton_play);
                 imageButton.setOnClickListener(buttonPlayListener);
@@ -378,7 +378,7 @@ public class DetailsFragment extends Fragment {
         if (reviews.size() > 0) {
             LayoutInflater inflater = LayoutInflater.from(getContext());
             for (Review review : reviews) {
-                View reviewView = inflater.inflate(R.layout.review_item, reviewsListView);
+                View reviewView = inflater.inflate(R.layout.review_item, null);
                 TextView author = (TextView) reviewView.findViewById(R.id.textview_author);
                 TextView content = (TextView) reviewView.findViewById(R.id.textview_content);
                 author.setText(review.getAuthor());
