@@ -17,6 +17,7 @@
 
     <!-- preferences -->
     <string name="current_page_preference">current_page</string>
+    <string name="selected_movie_key">selected_movie</string>
 
     <!-- toggle button state names -->
     <string name="toggle_unchecked">Mark as \nfavorite</string>

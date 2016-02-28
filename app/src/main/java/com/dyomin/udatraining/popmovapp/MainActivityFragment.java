@@ -50,7 +50,7 @@ public class MainActivityFragment extends Fragment {
     private int totalPages;
     private int currentPageIndex;
     private int newPageIndex;
-    private int selecetedMovieIndex;
+    private int selectedMovieIndex;
 
     private static final String SELECTED_MOVIE_KEY = "selected_movie_key";
 
@@ -70,18 +70,12 @@ public class MainActivityFragment extends Fragment {
     }
 
     @Override
-    public void onSaveInstanceState(Bundle outState) {
-        if (selecetedMovieIndex != ListView.INVALID_POSITION) {
-            outState.putInt(SELECTED_MOVIE_KEY, selecetedMovieIndex);
-        }
-        super.onSaveInstanceState(outState);
-    }
-
-    @Override
     public void onPause() {
         super.onPause();
         PreferenceManager.getDefaultSharedPreferences(getActivity())
-                .edit().putInt(getString(R.string.current_page_preference), currentPageIndex)
+                .edit()
+                .putInt(getString(R.string.current_page_preference), currentPageIndex)
+                .putInt(getString(R.string.selected_movie_key), selectedMovieIndex)
                 .commit();
     }
 
@@ -126,7 +120,7 @@ public class MainActivityFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Callback callback = (Callback) getActivity();
-                selecetedMovieIndex = position;
+                selectedMovieIndex = position;
                 stopTaskIfRunning();
                 callback.onItemSelected((MovieDetails) posterAdapter.getItem(position));
             }
@@ -148,18 +142,18 @@ public class MainActivityFragment extends Fragment {
             }
         });
 
-        if (savedInstanceState != null) {
-            selecetedMovieIndex = savedInstanceState.getInt(SELECTED_MOVIE_KEY);
-        } else {
-            selecetedMovieIndex = 0;
-        }
+//        if (savedInstanceState != null) {
+//            selectedMovieIndex = savedInstanceState.getInt(SELECTED_MOVIE_KEY);
+//        } else {
+//            selectedMovieIndex = 0;
+//        }
 
         return v;
     }
 
     private void processPageNavigation(int boundaryPageIndex) {
         if (currentPageIndex != boundaryPageIndex) {
-            selecetedMovieIndex = 0;
+            selectedMovieIndex = 0;
             showMovies();
         }
     }
@@ -167,6 +161,8 @@ public class MainActivityFragment extends Fragment {
     private void initMoviesGrid() {
         currentPageIndex = PreferenceManager.getDefaultSharedPreferences(getContext())
                 .getInt(getString(R.string.current_page_preference), 1);
+        selectedMovieIndex = PreferenceManager.getDefaultSharedPreferences(getContext())
+                .getInt(getString(R.string.selected_movie_key), 0);
         newPageIndex = currentPageIndex;
         showMovies();
     }
@@ -218,15 +214,29 @@ public class MainActivityFragment extends Fragment {
                 details.setTitle(cursor.getOriginalTitle());
                 details.setOverview(cursor.getOverview());
                 details.setReleaseDate(cursor.getMovieReleaseDate());
-                details.setVoteAverage(Float.toString(cursor.getVoteAverage()));
+                details.setVoteAverage(prepareVoteAverageString(cursor));
                 details.setPosterUrl(cursor.getMoviePosterUri());
                 moviesList.add(details);
             }
             batch.setCurrentPage(newPageIndex);
             batch.setTotalPages(totalPages);
             batch.setMovieDetailses(moviesList);
+            if (selectedMovieIndex == moviesList.size()) {
+                selectedMovieIndex = 0;
+            }
             setBatchResults(batch);
         }
+    }
+
+    private String prepareVoteAverageString(MovieCursor cursor) {
+        Float voteAvg = cursor.getVoteAverage();
+        String voteString;
+        if (voteAvg != null) {
+            voteString = voteAvg.toString();
+        } else {
+            voteString = "0";
+        }
+        return voteString;
     }
 
     private String getSelectionPreference() {
@@ -277,7 +287,7 @@ public class MainActivityFragment extends Fragment {
             gv.setAdapter(posterAdapter);
         }
         updatePageNavigatorUI(batch);
-        sendBootIntent(batch.getMovieDetailses().get(selecetedMovieIndex));
+        sendBootIntent(batch.getMovieDetailses().get(selectedMovieIndex));
     }
 
     private void sendBootIntent(MovieDetails movieDetails) {

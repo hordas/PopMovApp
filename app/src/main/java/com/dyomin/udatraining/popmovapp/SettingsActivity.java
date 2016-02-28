@@ -68,8 +68,9 @@ public class SettingsActivity extends PreferenceActivity {
                 preference.setSummary(stringValue);
             }
             Context prefContext = preference.getContext();
-            PreferenceManager.getDefaultSharedPreferences(prefContext)
-                    .edit().putInt(prefContext.getString(R.string.current_page_preference), 1)
+            PreferenceManager.getDefaultSharedPreferences(prefContext).edit()
+                    .putInt(prefContext.getString(R.string.current_page_preference), 1)
+                    .putInt(prefContext.getString(R.string.selected_movie_key), 0)
                     .commit();
             return true;
         }
