@@ -1,7 +1,6 @@
 package com.dyomin.udatraining.popmovapp;
 
 import android.content.ContentValues;
-import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -35,11 +34,16 @@ import com.dyomin.udatraining.popmovapp.provider.movie.MovieCursor;
 import com.dyomin.udatraining.popmovapp.provider.movie.MovieSelection;
 import com.dyomin.udatraining.popmovapp.provider.review.ReviewColumns;
 import com.dyomin.udatraining.popmovapp.provider.review.ReviewContentValues;
+import com.dyomin.udatraining.popmovapp.provider.review.ReviewCursor;
+import com.dyomin.udatraining.popmovapp.provider.review.ReviewSelection;
 import com.dyomin.udatraining.popmovapp.provider.video.VideoColumns;
 import com.dyomin.udatraining.popmovapp.provider.video.VideoContentValues;
+import com.dyomin.udatraining.popmovapp.provider.video.VideoCursor;
+import com.dyomin.udatraining.popmovapp.provider.video.VideoSelection;
 import com.dyomin.udatraining.popmovapp.util.Connection;
 import com.dyomin.udatraining.popmovapp.util.JsonParser;
 import com.squareup.picasso.Picasso;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 import static com.dyomin.udatraining.popmovapp.FragmentInterconnectionHelper.*;
@@ -106,7 +110,7 @@ public class DetailsFragment extends Fragment {
         voteAverage.setText(movie.getVoteAverage());
         releaseDate.setText(movie.getReleaseDate());
 
-        obtainTrailersAndReviews(getActivity());
+        obtainTrailersAndReviews();
         toggleFavorite.setOnCheckedChangeListener(buttonFavoriteListener);
         return v;
     }
@@ -133,7 +137,9 @@ public class DetailsFragment extends Fragment {
     }
 
     private void initShareProvider() {
-        mShareActionProvider.setShareIntent(createShareMovieIntent());
+        if (mShareActionProvider != null) {
+            mShareActionProvider.setShareIntent(createShareMovieIntent());
+        }
     }
 
     private Intent createShareMovieIntent() {
@@ -183,23 +189,58 @@ public class DetailsFragment extends Fragment {
         toggleFavorite.setChecked(favorite);
     }
 
-    private void obtainTrailersAndReviews(Context context) {
+    private void obtainTrailersAndReviews() {
         String movieIdString = Integer.toString(movie.getMovieId());
         if (!favorite) {
-            new TrailersUploader(context).execute(movieIdString);
-            new ReviewsUploader(context).execute(movieIdString);
+            new TrailersUploader().execute(movieIdString);
+            new ReviewsUploader().execute(movieIdString);
         } else {
-            readTrailersFromDB();
-            readReviewsFromDB();
+            obtainTrailersAndReviewsFromDB();
         }
     }
 
-    private void readTrailersFromDB() {
-
+    private void obtainTrailersAndReviewsFromDB() {
+        MovieCursor cursor = new MovieSelection().tmdbId(movie.getMovieId()).query(getContext().getContentResolver());
+        if (cursor.moveToFirst()) {
+            int movieId = (int) cursor.getId();
+            readTrailersFromDB(movieId);
+            readReviewsFromDB(movieId);
+        }
     }
 
-    private void readReviewsFromDB() {
+    private void readTrailersFromDB(int movieId) {
+        VideoSelection where = new VideoSelection();
+        VideoCursor cursor = where.movieId(movieId).query(getContext().getContentResolver());
+        trailers = new ArrayList<>();
 
+        if (cursor != null && cursor.getCount() > 0) {
+            while (cursor.moveToNext()) {
+                Trailer trailer = new Trailer();
+                trailer.setMovieTmdbId(cursor.getMovieTmdbId());
+                trailer.setTrailerKey(cursor.getTrailerKey());
+                trailer.setName(cursor.getName());
+                trailers.add(trailer);
+            }
+            initMovieInfoAndShareProvider();
+        }
+        refreshTrailersListview();
+    }
+
+    private void readReviewsFromDB(int movieId) {
+        ReviewSelection where = new ReviewSelection();
+        ReviewCursor cursor = where.movieId(movieId).query(getContext().getContentResolver());
+        reviews = new ArrayList<>();
+
+        if (cursor != null && cursor.getCount() > 0) {
+            while (cursor.moveToNext()) {
+                Review review = new Review();
+                review.setMovieTmdbId(cursor.getMovieTmdbId());
+                review.setAuthor(cursor.getAuthor());
+                review.setContent(cursor.getContent());
+                reviews.add(review);
+            }
+        }
+        refreshReviewsListview();
     }
 
     private void removeFromDB() {
@@ -271,12 +312,6 @@ public class DetailsFragment extends Fragment {
 
     class TrailersUploader extends AsyncTask<String, Void, String> {
 
-        private Context context;
-
-        public TrailersUploader(Context context) {
-            this.context = context;
-        }
-
         protected void onPreExecute() {
             progressBarTrailers.setVisibility(View.VISIBLE);
         }
@@ -292,34 +327,31 @@ public class DetailsFragment extends Fragment {
             progressBarTrailers.setVisibility(View.INVISIBLE);
             if (responseString != null) {
                 trailers = JsonParser.parseTrailers(responseString);
-                if (trailers.size() > 0) {
-                    LayoutInflater inflater = LayoutInflater.from(context);
-                    for (int i = 0; i < trailers.size(); i++) {
-                        View trailerView = inflater.inflate(R.layout.trailer_item, null);
-                        TextView titleTextView = (TextView) trailerView.findViewById(R.id.textview_trailer_name);
-                        ImageButton imageButton = (ImageButton) trailerView.findViewById(R.id.imagebutton_play);
-                        imageButton.setOnClickListener(buttonPlayListener);
-                        imageButton.setTag(trailers.get(i).getTrailerKey());
-                        titleTextView.setText(trailers.get(i).getName());
-                        trailersListView.addView(trailerView);
-                    }
-                    initMovieInfoAndShareProvider();
-                    trailersLayout.setVisibility(View.VISIBLE);
-                } else {
-                    trailersLayout.setVisibility(View.GONE);
-                }
+                refreshTrailersListview();
             }
         }
+    }
 
+    private void refreshTrailersListview() {
+        if (trailers.size() > 0) {
+            LayoutInflater inflater = LayoutInflater.from(getContext());
+            for (int i = 0; i < trailers.size(); i++) {
+                View trailerView = inflater.inflate(R.layout.trailer_item, trailersListView);
+                TextView titleTextView = (TextView) trailerView.findViewById(R.id.textview_trailer_name);
+                ImageButton imageButton = (ImageButton) trailerView.findViewById(R.id.imagebutton_play);
+                imageButton.setOnClickListener(buttonPlayListener);
+                imageButton.setTag(trailers.get(i).getTrailerKey());
+                titleTextView.setText(trailers.get(i).getName());
+                trailersListView.addView(trailerView);
+            }
+            initMovieInfoAndShareProvider();
+            trailersLayout.setVisibility(View.VISIBLE);
+        } else {
+            trailersLayout.setVisibility(View.GONE);
+        }
     }
 
     class ReviewsUploader extends AsyncTask<String, Void, String> {
-
-        private Context context;
-
-        public ReviewsUploader(Context context) {
-            this.context = context;
-        }
 
         protected void onPreExecute() {
             progressBarReviews.setVisibility(View.VISIBLE);
@@ -338,20 +370,24 @@ public class DetailsFragment extends Fragment {
                 return;
             }
             reviews = JsonParser.parseReviews(responseString);
-            if (reviews.size() > 0) {
-                LayoutInflater inflater = LayoutInflater.from(context);
-                for (Review review : reviews) {
-                    View reviewView = inflater.inflate(R.layout.review_item, null);
-                    TextView author = (TextView) reviewView.findViewById(R.id.textview_author);
-                    TextView content = (TextView) reviewView.findViewById(R.id.textview_content);
-                    author.setText(review.getAuthor());
-                    content.setText(review.getContent());
-                    reviewsListView.addView(reviewView);
-                }
-                reviewsLayout.setVisibility(View.VISIBLE);
-            } else {
-                reviewsLayout.setVisibility(View.GONE);
+            refreshReviewsListview();
+        }
+    }
+
+    private void refreshReviewsListview() {
+        if (reviews.size() > 0) {
+            LayoutInflater inflater = LayoutInflater.from(getContext());
+            for (Review review : reviews) {
+                View reviewView = inflater.inflate(R.layout.review_item, reviewsListView);
+                TextView author = (TextView) reviewView.findViewById(R.id.textview_author);
+                TextView content = (TextView) reviewView.findViewById(R.id.textview_content);
+                author.setText(review.getAuthor());
+                content.setText(review.getContent());
+                reviewsListView.addView(reviewView);
             }
+            reviewsLayout.setVisibility(View.VISIBLE);
+        } else {
+            reviewsLayout.setVisibility(View.GONE);
         }
     }
 }
