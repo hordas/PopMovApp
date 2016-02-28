@@ -30,6 +30,7 @@ import com.dyomin.udatraining.popmovapp.util.JsonParser;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.dyomin.udatraining.popmovapp.FragmentInterconnectionHelper.*;
 /**
  * A placeholder fragment containing a simple view.
  */
@@ -253,8 +254,6 @@ public class MainActivityFragment extends Fragment {
 
     public class PostersUploader extends AsyncTask<String, Void, PosterBatch> {
 
-        private final String LOG_TAG = PostersUploader.class.getSimpleName();
-
         protected void onPreExecute() {
             setPageNavigatorLoading(true);
         }
@@ -269,9 +268,11 @@ public class MainActivityFragment extends Fragment {
         protected void onPostExecute(PosterBatch posterBatch) {
             setPageNavigatorLoading(false);
             if (posterBatch == null) {
-                throw new RuntimeException(LOG_TAG + "PosterBatch == null.");
+                Toast.makeText(getContext(), "Unable to connect to the server.\nPlease try later.",
+                        Toast.LENGTH_LONG).show();
+            } else {
+                setBatchResults(posterBatch);
             }
-            setBatchResults(posterBatch);
         }
     }
 
@@ -301,7 +302,7 @@ public class MainActivityFragment extends Fragment {
 
         if (batch.getMovieDetailses().size() != 0) {
             MovieDetails movieDetails = batch.getMovieDetailses().get(selectedMovieIndex);
-            bootIntent = DetailsFragment.puDataIntoIntent(bootIntent, movieDetails);
+            bootIntent = puDataIntoIntent(bootIntent, movieDetails);
         }
 
         LocalBroadcastManager.getInstance(getContext()).sendBroadcast(bootIntent);

@@ -8,9 +8,14 @@ import android.os.AsyncTask;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v7.widget.ShareActionProvider;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CompoundButton;
@@ -37,18 +42,15 @@ import com.dyomin.udatraining.popmovapp.util.JsonParser;
 import com.squareup.picasso.Picasso;
 import java.util.List;
 import java.util.Vector;
+import static com.dyomin.udatraining.popmovapp.FragmentInterconnectionHelper.*;
 
 /**
  * Contains information about selected movie.
  */
 public class DetailsFragment extends Fragment {
 
-    public static final String MOVIE_TMDB_ID = "movie_tmdb_id";
-    public static final String MOVIE_TITLE = "movie_title";
-    public static final String MOVIE_OVERVIEW = "movie_overview";
-    public static final String MOVIE_VOTE_AVERAGE = "movie_vote_average";
-    public static final String MOVIE_RELEASE_DATE = "movie_release_date";
-    public static final String MOVIE_POSTER_URL = "movie_poster_url";
+    private static final String POPMOVAPP_SHARE_HASHTAG = "#PopularMoviesApp";
+    public static final String BASE_YOUTUBE_URL = "http://www.youtube.com/watch?v=";
 
     private LinearLayout trailersListView;
     private LinearLayout reviewsListView;
@@ -62,8 +64,17 @@ public class DetailsFragment extends Fragment {
     private MovieDetails movie;
     private List<Trailer> trailers;
     private List<Review> reviews;
+    private ShareActionProvider mShareActionProvider;
+    private String movieInfo;
 
     public DetailsFragment() {
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        movieInfo = "";
+        setHasOptionsMenu(true);
     }
 
     @Override
@@ -87,7 +98,6 @@ public class DetailsFragment extends Fragment {
         movie = getMovieDataFromTheBundle(args);
         checkIsFavorite();
 
-
         Picasso.with(getActivity()).load(
                         Connection.getImageUrl(movie.getPosterUrl())
                 ).into(posterView);
@@ -101,51 +111,37 @@ public class DetailsFragment extends Fragment {
         return v;
     }
 
-    public static Bundle putDataIntoTheBundle(MovieDetails movieDetails) {
-        Bundle args = new Bundle();
-        args.putInt(MOVIE_TMDB_ID, movieDetails.getMovieId());
-        args.putString(MOVIE_TITLE, movieDetails.getTitle());
-        args.putString(MOVIE_OVERVIEW, movieDetails.getOverview());
-        args.putString(MOVIE_VOTE_AVERAGE, movieDetails.getVoteAverage());
-        args.putString(MOVIE_RELEASE_DATE, movieDetails.getReleaseDate());
-        args.putString(MOVIE_POSTER_URL, movieDetails.getPosterUrl());
-        return args;
+    private void initMovieInfoAndShareProvider() {
+        if (movie != null && trailers != null && trailers.size() > 0) {
+            movieInfo = movie.getTitle()
+                    + "\nrelease: " + movie.getReleaseDate()
+                    + "\n" + BASE_YOUTUBE_URL + trailers.get(0).getTrailerKey()
+                    + "\n" + POPMOVAPP_SHARE_HASHTAG;
+        } else {
+            movieInfo = "";
+        }
+        initShareProvider();
     }
 
-    public static Bundle createBundleFromDetailsIntent(Intent intent) {
-        return putDataIntoTheBundle(createPosterFromIntentData(intent));
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.menu_details_fragment, menu);
+        MenuItem menuItem = menu.findItem(R.id.action_share);
+
+        mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(menuItem);
+        initShareProvider();
     }
 
-    public static MovieDetails createPosterFromIntentData(Intent intent) {
-        MovieDetails movieDetails = new MovieDetails();
-        movieDetails.setMovieId(intent.getIntExtra(MOVIE_TMDB_ID, -1));
-        movieDetails.setTitle(intent.getStringExtra(MOVIE_TITLE));
-        movieDetails.setOverview(intent.getStringExtra(MOVIE_OVERVIEW));
-        movieDetails.setVoteAverage(intent.getStringExtra(MOVIE_VOTE_AVERAGE));
-        movieDetails.setReleaseDate(intent.getStringExtra(MOVIE_RELEASE_DATE));
-        movieDetails.setPosterUrl(intent.getStringExtra(MOVIE_POSTER_URL));
-        return movieDetails;
+    private void initShareProvider() {
+        mShareActionProvider.setShareIntent(createShareMovieIntent());
     }
 
-    public static Intent puDataIntoIntent(Intent intent, MovieDetails movieDetails) {
-        intent.putExtra(DetailsFragment.MOVIE_TMDB_ID, movieDetails.getMovieId());
-        intent.putExtra(DetailsFragment.MOVIE_TITLE, movieDetails.getTitle());
-        intent.putExtra(DetailsFragment.MOVIE_OVERVIEW, movieDetails.getOverview());
-        intent.putExtra(DetailsFragment.MOVIE_VOTE_AVERAGE, movieDetails.getVoteAverage());
-        intent.putExtra(DetailsFragment.MOVIE_RELEASE_DATE, movieDetails.getReleaseDate());
-        intent.putExtra(DetailsFragment.MOVIE_POSTER_URL, movieDetails.getPosterUrl());
-        return intent;
-    }
-
-    private static MovieDetails getMovieDataFromTheBundle(Bundle args) {
-        MovieDetails movieDetails = new MovieDetails();
-        movieDetails.setMovieId(args.getInt(MOVIE_TMDB_ID));
-        movieDetails.setTitle(args.getString(MOVIE_TITLE));
-        movieDetails.setOverview(args.getString(MOVIE_OVERVIEW));
-        movieDetails.setVoteAverage(args.getString(MOVIE_VOTE_AVERAGE));
-        movieDetails.setReleaseDate(args.getString(MOVIE_RELEASE_DATE));
-        movieDetails.setPosterUrl(args.getString(MOVIE_POSTER_URL));
-        return movieDetails;
+    private Intent createShareMovieIntent() {
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+        shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+        shareIntent.setType("text/plain");
+        shareIntent.putExtra(Intent.EXTRA_TEXT, movieInfo);
+        return shareIntent;
     }
 
     private View.OnClickListener buttonPlayListener = new View.OnClickListener() {
@@ -153,7 +149,7 @@ public class DetailsFragment extends Fragment {
         public void onClick(View v) {
             String path = (String) v.getTag();
             if (!TextUtils.isEmpty(path)) {
-                String youtubeUrl = "http://www.youtube.com/watch?v=" + path;
+                String youtubeUrl = BASE_YOUTUBE_URL + path;
                 Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(youtubeUrl));
                 getActivity().startActivity(intent);
             }
@@ -307,6 +303,7 @@ public class DetailsFragment extends Fragment {
                         titleTextView.setText(trailers.get(i).getName());
                         trailersListView.addView(trailerView);
                     }
+                    initMovieInfoAndShareProvider();
                     trailersLayout.setVisibility(View.VISIBLE);
                 } else {
                     trailersLayout.setVisibility(View.GONE);
@@ -337,22 +334,23 @@ public class DetailsFragment extends Fragment {
         @Override
         protected void onPostExecute(String responseString) {
             progressBarReviews.setVisibility(View.INVISIBLE);
-            if (responseString != null) {
-                reviews = JsonParser.parseReviews(responseString);
-                if (reviews.size() > 0) {
-                    LayoutInflater inflater = LayoutInflater.from(context);
-                    for (Review review : reviews) {
-                        View reviewView = inflater.inflate(R.layout.review_item, null);
-                        TextView author = (TextView) reviewView.findViewById(R.id.textview_author);
-                        TextView content = (TextView) reviewView.findViewById(R.id.textview_content);
-                        author.setText(review.getAuthor());
-                        content.setText(review.getContent());
-                        reviewsListView.addView(reviewView);
-                    }
-                    reviewsLayout.setVisibility(View.VISIBLE);
-                } else {
-                    reviewsLayout.setVisibility(View.GONE);
+            if (responseString == null) {
+                return;
+            }
+            reviews = JsonParser.parseReviews(responseString);
+            if (reviews.size() > 0) {
+                LayoutInflater inflater = LayoutInflater.from(context);
+                for (Review review : reviews) {
+                    View reviewView = inflater.inflate(R.layout.review_item, null);
+                    TextView author = (TextView) reviewView.findViewById(R.id.textview_author);
+                    TextView content = (TextView) reviewView.findViewById(R.id.textview_content);
+                    author.setText(review.getAuthor());
+                    content.setText(review.getContent());
+                    reviewsListView.addView(reviewView);
                 }
+                reviewsLayout.setVisibility(View.VISIBLE);
+            } else {
+                reviewsLayout.setVisibility(View.GONE);
             }
         }
     }

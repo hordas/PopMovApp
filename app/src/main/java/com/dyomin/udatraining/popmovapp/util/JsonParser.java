@@ -18,6 +18,9 @@ import java.util.List;
 public class JsonParser {
 
     public static PosterBatch parseMovies(String response) {
+        if (response == null) {
+            return null;
+        }
         PosterBatch batch = new PosterBatch();
         List<MovieDetails> movieDetailses = new ArrayList<>();
         try {
