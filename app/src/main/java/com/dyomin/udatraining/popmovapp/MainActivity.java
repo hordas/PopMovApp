@@ -87,6 +87,7 @@ public class MainActivity extends ActionBarActivity implements MainActivityFragm
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.details_fragment, fragment).commit();
         } else {
+            // if was removed last item, then details fragment should become empty
             DetailsFragment detailsFragment =
                     (DetailsFragment) getSupportFragmentManager().findFragmentById(R.id.details_fragment);
             if (detailsFragment != null) {
