@@ -1,0 +1,24 @@
+{
+	"documentation": "Trailers table",
+	"fields": [
+		{
+			"name": "name",
+			"type": "String",
+			"nullable": false
+		},
+		{
+			"name": "trailer_key",
+			"type": "String",
+			"nullable": false
+		},
+		{	
+			"name": "movie_id",
+			"type": "Integer",
+			"nullable": false,
+			"foreignKey": {
+				"table": "movie",
+				"onDelete": "CASCADE"
+			}
+		}
+	]
+}

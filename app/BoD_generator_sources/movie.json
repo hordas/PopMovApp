@@ -1,0 +1,36 @@
+{
+    "documentation": "Movie details",
+    "fields": [
+        {
+            "documentation": "Movie id at TMDB",
+            "name": "tmdb_id",
+            "type": "Integer",
+			"nullable": false
+        },
+        {
+            "documentation": "Movie title",
+            "name": "original_title",
+            "type": "String",
+            "nullable": false
+        },
+		{
+			"documentation": "Movie poster URI",
+			"name": "movie_poster_uri",
+			"type": "String"		
+		},
+		{
+			"documentation": "Movie release date",
+			"name": "movie_release_date",
+			"type": "String"
+		},
+		{
+			"documentation": "Vote average",
+			"name": "vote_average",
+			"type": "Float"
+		},
+        {
+            "name": "overview",
+            "type": "String"
+        }
+    ]
+}

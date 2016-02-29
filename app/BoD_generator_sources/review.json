@@ -1,0 +1,24 @@
+{
+	"documentation": "Reviews table",
+	"fields": [
+		{
+			"name": "author",
+			"type": "String",
+			"nullable": false
+		},
+		{
+			"name": "content",
+			"type": "String",
+			"nullable": false
+		},
+		{	
+			"name": "movie_id",
+			"type": "Integer",
+			"nullable": false,
+			"foreignKey": {
+				"table": "movie",
+				"onDelete": "CASCADE"
+			}
+		}
+	]
+}

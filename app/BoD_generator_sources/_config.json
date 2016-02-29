@@ -1,0 +1,13 @@
+{
+    "syntaxVersion": 3,
+    "projectPackageId": "com.dyomin.udatraining.popmovapp",
+    "authority": "com.dyomin.udatraining.popmovapp.provider",
+    "providerJavaPackage": "com.dyomin.udatraining.popmovapp.provider",
+    "providerClassName": "PMAProvider",
+    "sqliteOpenHelperClassName": "PMASQLiteOpenHelper",
+    "sqliteOpenHelperCallbacksClassName": "PMASQLiteOpenHelperCallbacks",
+    "databaseFileName": "popmovapp.db",
+    "databaseVersion": 1,
+    "enableForeignKeys": true,
+    "useAnnotations": true
+}
